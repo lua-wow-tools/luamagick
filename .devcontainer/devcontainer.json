@@ -1,0 +1,8 @@
+{
+  "name": "lua-wow-tools/render",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "pre-commit install --install-hooks",
+  "remoteUser": "vscode"
+}
