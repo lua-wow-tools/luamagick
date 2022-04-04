@@ -3,6 +3,6 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "pre-commit install --install-hooks",
+  "postCreateCommand": "pre-commit run -a",
   "remoteUser": "vscode"
 }
