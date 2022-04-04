@@ -1,9 +1,7 @@
-#include <lua.h>
 #include <lauxlib.h>
+#include <lua.h>
 
-static struct luaL_Reg wowrender_image[] = {
-  {NULL, NULL}
-};
+static struct luaL_Reg wowrender_image[] = {{NULL, NULL}};
 
 int luaopen_wowrender_image(lua_State *L) {
   lua_newtable(L);
