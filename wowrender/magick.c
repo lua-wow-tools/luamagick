@@ -9,6 +9,7 @@ static int magick_error(lua_State *L, MagickWand *wand) {
   char *error = MagickGetException(wand, &severity);
   lua_pushnil(L);
   lua_pushstring(L, error);
+  MagickRelinquishMemory(error);
   return 2;
 }
 
@@ -24,6 +25,16 @@ static int new_magick_wand(lua_State *L) {
   luaL_getmetatable(L, magick_wand_meta_name);
   lua_setmetatable(L, -2);
   *p = NewMagickWand();
+  return 1;
+}
+
+static int get_image_format(lua_State *L) {
+  MagickWand *wand;
+  char *format;
+  wand = check_magick_wand(L, 1);
+  format = MagickGetImageFormat(wand);
+  lua_pushstring(L, format);
+  MagickRelinquishMemory(format);
   return 1;
 }
 
@@ -52,6 +63,7 @@ static int read_image(lua_State *L) {
 }
 
 static struct luaL_Reg magick_wand_index[] = {
+    {"get_image_format", get_image_format},
     {"get_image_height", get_image_height},
     {"get_image_width", get_image_width},
     {"read_image", read_image},
