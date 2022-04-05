@@ -45,10 +45,48 @@ static int get_image_width(lua_State *L) {
   return 1;
 }
 
+static int get_number_images(lua_State *L) {
+  lua_pushnumber(L, MagickGetNumberImages(check_magick_wand(L, 1)));
+  return 1;
+}
+
+static int get_option(lua_State *L) {
+  MagickWand *wand = check_magick_wand(L, 1);
+  const char *key = luaL_checkstring(L, 2);
+  char *value = MagickGetOption(wand, key);
+  lua_pushstring(L, value);
+  MagickRelinquishMemory(value);
+  return 1;
+}
+
+static int get_options(lua_State *L) {
+  MagickWand *wand = check_magick_wand(L, 1);
+  const char *pattern = luaL_checkstring(L, 2);
+  size_t num_options;
+  char **value = MagickGetOptions(wand, pattern, &num_options);
+  for (int i = 0; i < num_options; ++i) {
+    lua_pushstring(L, value[i]);
+    MagickRelinquishMemory(value[i]);
+  }
+  MagickRelinquishMemory(value);
+  return num_options;
+}
+
 static int read_image(lua_State *L) {
   MagickWand *wand = check_magick_wand(L, 1);
   const char *data = luaL_checkstring(L, 2);
   if (MagickReadImage(wand, data) != MagickTrue) {
+    return magick_error(L, wand);
+  }
+  lua_pushboolean(L, 1);
+  return 1;
+}
+
+static int set_option(lua_State *L) {
+  MagickWand *wand = check_magick_wand(L, 1);
+  const char *key = luaL_checkstring(L, 2);
+  const char *value = luaL_checkstring(L, 3);
+  if (MagickSetOption(wand, key, value) != MagickTrue) {
     return magick_error(L, wand);
   }
   lua_pushboolean(L, 1);
@@ -69,7 +107,11 @@ static struct luaL_Reg magick_wand_index[] = {
     {"get_image_format", get_image_format},
     {"get_image_height", get_image_height},
     {"get_image_width", get_image_width},
+    {"get_number_images", get_number_images},
+    {"get_option", get_option},
+    {"get_options", get_options},
     {"read_image", read_image},
+    {"set_option", set_option},
     {"write_image", write_image},
     {NULL, NULL},
 };
