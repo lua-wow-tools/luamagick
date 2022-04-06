@@ -2,6 +2,7 @@
 #include <lua.h>
 #include <wand/MagickWand.h>
 
+static const char drawing_wand_meta_name[] = "wowrender.magick drawing wand";
 static const char magick_wand_meta_name[] = "wowrender.magick magick wand";
 
 static int magick_error(lua_State *L, MagickWand *wand) {
@@ -13,10 +14,24 @@ static int magick_error(lua_State *L, MagickWand *wand) {
   return 2;
 }
 
+static DrawingWand *check_drawing_wand(lua_State *L, int k) {
+  void *ud = luaL_checkudata(L, k, drawing_wand_meta_name);
+  luaL_argcheck(L, ud != NULL, k, "drawing wand expected");
+  return *(DrawingWand **)ud;
+}
+
 static MagickWand *check_magick_wand(lua_State *L, int k) {
   void *ud = luaL_checkudata(L, k, magick_wand_meta_name);
   luaL_argcheck(L, ud != NULL, k, "magick wand expected");
   return *(MagickWand **)ud;
+}
+
+static int new_drawing_wand(lua_State *L) {
+  DrawingWand **p = lua_newuserdata(L, sizeof(*p));
+  luaL_getmetatable(L, drawing_wand_meta_name);
+  lua_setmetatable(L, -2);
+  *p = NewDrawingWand();
+  return 1;
 }
 
 static int new_magick_wand(lua_State *L) {
@@ -25,6 +40,20 @@ static int new_magick_wand(lua_State *L) {
   lua_setmetatable(L, -2);
   *p = NewMagickWand();
   return 1;
+}
+
+static int draw_annotation(lua_State *L) {
+  DrawingWand *wand = check_drawing_wand(L, 1);
+  lua_Number x = luaL_checknumber(L, 2);
+  lua_Number y = luaL_checknumber(L, 3);
+  const char *text = luaL_checkstring(L, 4);
+  DrawAnnotation(wand, x, y, text);
+}
+
+static int draw_image(lua_State *L) {
+  MagickWand *wand = check_magick_wand(L, 1);
+  DrawingWand *drawing_wand = check_drawing_wand(L, 2);
+  MagickDrawImage(wand, drawing_wand);
 }
 
 static int get_image_format(lua_State *L) {
@@ -103,7 +132,13 @@ static int write_image(lua_State *L) {
   return 1;
 }
 
+static struct luaL_Reg drawing_wand_index[] = {
+    {"draw_annotation", draw_annotation},
+    {NULL, NULL},
+};
+
 static struct luaL_Reg magick_wand_index[] = {
+    {"draw_image", draw_image},
     {"get_image_format", get_image_format},
     {"get_image_height", get_image_height},
     {"get_image_width", get_image_width},
@@ -117,6 +152,7 @@ static struct luaL_Reg magick_wand_index[] = {
 };
 
 static struct luaL_Reg module_index[] = {
+    {"new_drawing_wand", new_drawing_wand},
     {"new_magick_wand", new_magick_wand},
     {NULL, NULL},
 };
@@ -125,6 +161,11 @@ int luaopen_wowrender_magick(lua_State *L) {
   if (IsMagickWandInstantiated() == MagickFalse) {
     MagickWandGenesis();
   }
+  luaL_newmetatable(L, drawing_wand_meta_name);
+  lua_pushstring(L, "__index");
+  lua_pushvalue(L, -2);
+  lua_settable(L, -3);
+  luaL_register(L, NULL, drawing_wand_index);
   luaL_newmetatable(L, magick_wand_meta_name);
   lua_pushstring(L, "__index");
   lua_pushvalue(L, -2);
