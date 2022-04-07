@@ -15,15 +15,11 @@ repos:
   hooks:
   - id: remove-crlf
   - id: forbid-tabs
-- repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v13.0.1
-  hooks:
-  - id: clang-format
 - repo: local
   hooks:
   - id: build-and-test
     name: build and test
-    entry: sh -c "luarocks build --no-install && busted"
+    entry: sh -c "lua wowrender/genmagick.lua && luarocks build --no-install && busted"
     language: system
     pass_filenames: false
   - id: luacheck
