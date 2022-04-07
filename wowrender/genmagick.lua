@@ -5,6 +5,9 @@ local wands = {
       Annotation = {
         args = { 'number', 'number', 'string' },
       },
+      Clear = {
+        name = 'ClearDrawingWand',
+      },
     },
   },
   Magick = {
@@ -148,24 +151,27 @@ static int new_LOWER_wand(lua_State *L) {
           error('invalid func arg ' .. arg)
         end
       end
-      fmts.FCALL = ('%s%s(%s)'):format(wand.prefix, fname, table.concat(args, ', '))
+      fmts.FCALL = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
       if func.returns == 'number' then
         add('  lua_pushnumber(L, FCALL);')
+        add('  return 1;')
       elseif func.returns == 'string' then
         add('  char *value = FCALL;')
         add('  lua_pushstring(L, value);')
         add('  MagickRelinquishMemory(value);')
+        add('  return 1;')
       elseif func.returns == 'bool' then
         add('  if (FCALL != MagickTrue) {')
         add('    return LOWER_error(L, wand);')
         add('  }')
         add('  lua_pushboolean(L, 1);')
+        add('  return 1;')
       elseif func.returns == nil then
         add('  FCALL;')
+        add('  return 0;')
       else
         error('invalid func.returns ' .. func.returns)
       end
-      add('  return 1;')
     end
     add('}')
     add('')
