@@ -8,6 +8,10 @@ local wands = {
       Clear = {
         name = 'ClearDrawingWand',
       },
+      Clone = {
+        name = 'CloneDrawingWand',
+        returns = 'DrawingWand',
+      },
     },
   },
   Magick = {
@@ -115,12 +119,16 @@ static WANDWand *check_LOWER_wand(lua_State *L, int k) {
   return *(WANDWand **)ud;
 }
 
-static int new_LOWER_wand(lua_State *L) {
+static int wrap_LOWER_wand(lua_State *L, WANDWand *wand) {
   WANDWand **p = lua_newuserdata(L, sizeof(*p));
   luaL_getmetatable(L, LOWER_wand_meta_name);
   lua_setmetatable(L, -2);
-  *p = NewWANDWand();
+  *p = wand;
   return 1;
+}
+
+static int new_LOWER_wand(lua_State *L) {
+  return wrap_LOWER_wand(L, NewWANDWand());
 }
 ]])
 
@@ -166,6 +174,8 @@ static int new_LOWER_wand(lua_State *L) {
         add('  }')
         add('  lua_pushboolean(L, 1);')
         add('  return 1;')
+      elseif func.returns == 'DrawingWand' then
+        add('  return wrap_LOWER_wand(L, FCALL);')
       elseif func.returns == nil then
         add('  FCALL;')
         add('  return 0;')
