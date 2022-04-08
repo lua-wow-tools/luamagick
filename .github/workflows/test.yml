@@ -18,3 +18,7 @@ jobs:
         tags: moo
     - name: run tests in devcontainer
       run: docker run -t -v $PWD:/moo moo bash -c "cd /moo && pre-commit run -a"
+    - uses: actions/upload-artifact@v3
+      with:
+        name: magick.c
+        path: wowrender/magick.c
