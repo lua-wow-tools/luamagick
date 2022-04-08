@@ -53,13 +53,35 @@ local validArgs = {
   ['size_t'] = true,
 }
 
-local validRets = {
-  ['char *'] = true,
-  ['double'] = true,
-  ['DrawingWand *'] = true,
-  ['MagickBooleanType'] = true,
-  ['size_t'] = true,
-  ['void'] = true,
+local retCode = {
+  ['char *'] = {
+    'char *value = FCALL;',
+    'lua_pushstring(L, value);',
+    'MagickRelinquishMemory(value);',
+    'return 1;',
+  },
+  ['double'] = {
+    'lua_pushnumber(L, FCALL);',
+    'return 1;',
+  },
+  ['DrawingWand *'] = {
+    'return wrap_LOWER_wand(L, FCALL);',
+  },
+  ['MagickBooleanType'] = {
+    'if (FCALL != MagickTrue) {',
+    '  return LOWER_error(L, wand);',
+    '}',
+    'lua_pushboolean(L, 1);',
+    'return 1;',
+  },
+  ['size_t'] = {
+    'lua_pushnumber(L, FCALL);',
+    'return 1;',
+  },
+  ['void'] = {
+    'FCALL;',
+    'return 0;',
+  },
 }
 
 local function isValid(v)
@@ -68,7 +90,7 @@ local function isValid(v)
       return false
     end
   end
-  return validRets[v.ret]
+  return not not retCode[v.ret]
 end
 
 local wands = {}
@@ -199,27 +221,8 @@ static int new_LOWER_wand(lua_State *L) {
         end
       end
       fmts.FCALL = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
-      if cf.ret == 'double' or cf.ret == 'size_t' then
-        add('  lua_pushnumber(L, FCALL);')
-        add('  return 1;')
-      elseif cf.ret == 'char *' then
-        add('  char *value = FCALL;')
-        add('  lua_pushstring(L, value);')
-        add('  MagickRelinquishMemory(value);')
-        add('  return 1;')
-      elseif cf.ret == 'MagickBooleanType' then
-        add('  if (FCALL != MagickTrue) {')
-        add('    return LOWER_error(L, wand);')
-        add('  }')
-        add('  lua_pushboolean(L, 1);')
-        add('  return 1;')
-      elseif cf.ret == 'DrawingWand *' then
-        add('  return wrap_LOWER_wand(L, FCALL);')
-      elseif cf.ret == 'void' then
-        add('  FCALL;')
-        add('  return 0;')
-      else
-        error('invalid func.returns ' .. cf.ret)
+      for _, line in ipairs(retCode[cf.ret]) do
+        add('  ' .. line)
       end
     end
     add('}')
