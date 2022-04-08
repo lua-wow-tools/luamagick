@@ -6,7 +6,7 @@ local wandtypes = {
   Pixel = 'Pixel',
 }
 
-local allfuncs = (function()
+local allfuncs, numtypes = (function()
   local function splitArgs(args)
     local t = {}
     for _, arg in ipairs(sx.split(args, ',')) do
@@ -25,7 +25,7 @@ local allfuncs = (function()
       args = splitArgs(args),
     }
   end
-  local t = {}
+  local t, ns = {}, {}
   local f = io.popen([[
     echo \#include \"wand/MagickWand.h\" |
     clang -Xclang -ast-dump=json -fsyntax-only $(pkg-config ImageMagick --cflags) -xc -
@@ -40,9 +40,15 @@ local allfuncs = (function()
         assert(wandtypes[name], 'unexpected wand type ' .. name)
         t[v.name] = ty
       end
+    elseif
+      v.kind == 'TypedefDecl' and v.type.qualType == 'unsigned short'
+      or v.type and sx.startswith(v.type.qualType, 'enum ')
+    then
+      print(v.name)
+      ns[v.name] = true
     end
   end
-  return t
+  return t, ns
 end)()
 
 local argCode = {
@@ -51,6 +57,10 @@ local argCode = {
   ['double'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
   ['size_t'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
 }
+
+for k in pairs(numtypes) do
+  argCode[k] = argCode[k] or 'lua_Number arg%d = luaL_checknumber(L, %d);'
+end
 
 local retCode = {
   ['char *'] = {
