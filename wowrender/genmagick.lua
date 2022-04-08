@@ -41,7 +41,6 @@ local wands = {
   Drawing = {
     prefix = 'Draw',
     funcs = {
-      Annotation = {},
       Clear = {
         name = 'ClearDrawingWand',
       },
@@ -53,12 +52,6 @@ local wands = {
   Magick = {
     prefix = 'Magick',
     funcs = {
-      DrawImage = {},
-      GetImageFormat = {},
-      GetImageHeight = {},
-      GetImageWidth = {},
-      GetNumberImages = {},
-      GetOption = {},
       GetOptions = {
         special = [[
   MagickWand *wand = check_magick_wand(L, 1);
@@ -72,12 +65,43 @@ local wands = {
   MagickRelinquishMemory(value);
   return num_options;]],
       },
-      ReadImage = {},
-      SetOption = {},
-      WriteImage = {},
     },
   },
 }
+
+local validArgs = {
+  ['char *'] = true,
+  ['unsigned char *'] = true,
+  ['double'] = true,
+  ['DrawingWand *'] = true,
+  ['size_t'] = true,
+}
+
+local validRets = {
+  ['char *'] = true,
+  ['double'] = true,
+  ['DrawingWand *'] = true,
+  ['MagickBooleanType'] = true,
+  ['size_t'] = true,
+  ['void'] = true,
+}
+
+local function isValid(v)
+  for i = 2, #v.args do
+    if not validArgs[v.args[i]] then
+      return false
+    end
+  end
+  return validRets[v.ret]
+end
+
+for k, v in pairs(allfuncs) do
+  if sx.startswith(k, 'Draw') and v.args[1] == 'DrawingWand *' and isValid(v) then
+    wands.Drawing.funcs[k:sub(5)] = {}
+  elseif sx.startswith(k, 'Magick') and v.args[1] == 'MagickWand *' and isValid(v) then
+    wands.Magick.funcs[k:sub(7)] = {}
+  end
+end
 
 local function snake(s)
   -- c/o https://codegolf.stackexchange.com/a/177958
@@ -153,7 +177,7 @@ static int new_LOWER_wand(lua_State *L) {
   for _, fname in ipairs(fs) do
     local func = wand.funcs[fname]
     fmts.SNAKE = snake(fname)
-    add('static int SNAKE(lua_State *L) {')
+    add('static int LOWER_SNAKE(lua_State *L) {')
     if func.special then
       table.insert(t, func.special)
     else
@@ -163,7 +187,7 @@ static int new_LOWER_wand(lua_State *L) {
       for ai = 2, #cf.args do
         local arg = cf.args[ai]
         table.insert(args, 'arg' .. ai)
-        if arg == 'double' then
+        if arg == 'double' or arg == 'size_t' then
           add(('  lua_Number arg%d = luaL_checknumber(L, %d);'):format(ai, ai))
         elseif arg == 'char *' or arg == 'unsigned char *' then
           add(('  const char *arg%d = luaL_checkstring(L, %d);'):format(ai, ai))
@@ -174,7 +198,7 @@ static int new_LOWER_wand(lua_State *L) {
         end
       end
       fmts.FCALL = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
-      if cf.ret == 'size_t' then
+      if cf.ret == 'double' or cf.ret == 'size_t' then
         add('  lua_pushnumber(L, FCALL);')
         add('  return 1;')
       elseif cf.ret == 'char *' then
@@ -202,8 +226,8 @@ static int new_LOWER_wand(lua_State *L) {
   end
   add('static struct luaL_Reg LOWER_wand_index[] = {')
   for _, fname in ipairs(fs) do
-    local s = snake(fname)
-    add(('  {"%s", %s},'):format(s, s))
+    fmts.SNAKE = snake(fname)
+    add('  {"SNAKE", LOWER_SNAKE},')
   end
   add('  {NULL, NULL},')
   add('};')
