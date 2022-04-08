@@ -1,42 +1,64 @@
+local sx = require('pl.stringx')
+
+local allfuncs = (function()
+  local function splitArgs(args)
+    local t = {}
+    for _, arg in ipairs(sx.split(args, ',')) do
+      arg = sx.strip(arg)
+      if sx.startswith(arg, 'const ') then
+        arg = arg:sub(7)
+      end
+      table.insert(t, arg)
+    end
+    return t
+  end
+  local function parseQualType(ty)
+    local ret, args = ty:match('^(.+)%((.+)%)$')
+    return {
+      ret = sx.strip(ret),
+      args = splitArgs(args),
+    }
+  end
+  local t = {}
+  local f = io.popen([[
+    echo \#include \"wand/MagickWand.h\" |
+    clang -Xclang -ast-dump=json -fsyntax-only $(pkg-config ImageMagick --cflags) -xc -
+  ]])
+  local clang = require('dkjson').use_lpeg().decode(f:read('*a'))
+  f:close()
+  for _, v in ipairs(clang.inner) do
+    if v.kind == 'FunctionDecl' then
+      local ty = v.type.qualType
+      if ty:match('DrawingWand') or ty:match('MagickWand') or ty:match('PixelWand') then
+        t[v.name] = parseQualType(ty)
+      end
+    end
+  end
+  return t
+end)()
+
 local wands = {
   Drawing = {
     prefix = 'Draw',
     funcs = {
-      Annotation = {
-        args = { 'number', 'number', 'string' },
-      },
+      Annotation = {},
       Clear = {
         name = 'ClearDrawingWand',
       },
       Clone = {
         name = 'CloneDrawingWand',
-        returns = 'DrawingWand',
       },
     },
   },
   Magick = {
     prefix = 'Magick',
     funcs = {
-      DrawImage = {
-        args = { 'DrawingWand' },
-        returns = 'bool',
-      },
-      GetImageFormat = {
-        returns = 'string',
-      },
-      GetImageHeight = {
-        returns = 'number',
-      },
-      GetImageWidth = {
-        returns = 'number',
-      },
-      GetNumberImages = {
-        returns = 'number',
-      },
-      GetOption = {
-        args = { 'string' },
-        returns = 'string',
-      },
+      DrawImage = {},
+      GetImageFormat = {},
+      GetImageHeight = {},
+      GetImageWidth = {},
+      GetNumberImages = {},
+      GetOption = {},
       GetOptions = {
         special = [[
   MagickWand *wand = check_magick_wand(L, 1);
@@ -50,18 +72,9 @@ local wands = {
   MagickRelinquishMemory(value);
   return num_options;]],
       },
-      ReadImage = {
-        args = { 'string' },
-        returns = 'bool',
-      },
-      SetOption = {
-        args = { 'string', 'string' },
-        returns = 'bool',
-      },
-      WriteImage = {
-        args = { 'string' },
-        returns = 'bool',
-      },
+      ReadImage = {},
+      SetOption = {},
+      WriteImage = {},
     },
   },
 }
@@ -146,41 +159,42 @@ static int new_LOWER_wand(lua_State *L) {
     else
       add('  WANDWand *wand = check_LOWER_wand(L, 1);')
       local args = { 'wand' }
-      for i, arg in ipairs(func.args or {}) do
-        local ai = i + 1
+      local cf = allfuncs[func.name or (wand.prefix .. fname)]
+      for ai = 2, #cf.args do
+        local arg = cf.args[ai]
         table.insert(args, 'arg' .. ai)
-        if arg == 'number' then
+        if arg == 'double' then
           add(('  lua_Number arg%d = luaL_checknumber(L, %d);'):format(ai, ai))
-        elseif arg == 'string' then
+        elseif arg == 'char *' or arg == 'unsigned char *' then
           add(('  const char *arg%d = luaL_checkstring(L, %d);'):format(ai, ai))
-        elseif arg == 'DrawingWand' then
+        elseif arg == 'DrawingWand *' then
           add(('  DrawingWand *arg%d = check_drawing_wand(L, %d);'):format(ai, ai))
         else
           error('invalid func arg ' .. arg)
         end
       end
       fmts.FCALL = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
-      if func.returns == 'number' then
+      if cf.ret == 'size_t' then
         add('  lua_pushnumber(L, FCALL);')
         add('  return 1;')
-      elseif func.returns == 'string' then
+      elseif cf.ret == 'char *' then
         add('  char *value = FCALL;')
         add('  lua_pushstring(L, value);')
         add('  MagickRelinquishMemory(value);')
         add('  return 1;')
-      elseif func.returns == 'bool' then
+      elseif cf.ret == 'MagickBooleanType' then
         add('  if (FCALL != MagickTrue) {')
         add('    return LOWER_error(L, wand);')
         add('  }')
         add('  lua_pushboolean(L, 1);')
         add('  return 1;')
-      elseif func.returns == 'DrawingWand' then
+      elseif cf.ret == 'DrawingWand *' then
         add('  return wrap_LOWER_wand(L, FCALL);')
-      elseif func.returns == nil then
+      elseif cf.ret == 'void' then
         add('  FCALL;')
         add('  return 0;')
       else
-        error('invalid func.returns ' .. func.returns)
+        error('invalid func.returns ' .. cf.ret)
       end
     end
     add('}')
