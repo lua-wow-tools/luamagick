@@ -65,7 +65,7 @@ local retCode = {
   },
   ['MagickBooleanType'] = {
     'if (FCALL != MagickTrue) {',
-    '  return LOWER_error(L, wand);',
+    '  return LOWER_error(L, arg1);',
     '}',
     'lua_pushboolean(L, 1);',
     'return 1;',
@@ -216,11 +216,9 @@ static int new_LOWER_wand(lua_State *L) {
     if func.special then
       table.insert(t, func.special)
     else
-      add('  WANDWand *wand = check_LOWER_wand(L, 1);')
-      local args = { 'wand' }
+      local args = {}
       local cf = allfuncs[func.name or (wand.prefix .. fname)]
-      for i = 2, #cf.args do
-        local arg = cf.args[i]
+      for i, arg in ipairs(cf.args) do
         table.insert(args, 'arg' .. i)
         add(('  ' .. argCode[arg]):format(i, i))
       end
