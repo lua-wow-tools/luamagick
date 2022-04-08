@@ -45,12 +45,11 @@ local allfuncs = (function()
   return t
 end)()
 
-local validArgs = {
-  ['char *'] = true,
-  ['unsigned char *'] = true,
-  ['double'] = true,
-  ['DrawingWand *'] = true,
-  ['size_t'] = true,
+local argCode = {
+  ['char *'] = 'const char *arg%d = luaL_checkstring(L, %d);',
+  ['unsigned char *'] = 'const char *arg%d = luaL_checkstring(L, %d);',
+  ['double'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
+  ['size_t'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
 }
 
 local retCode = {
@@ -82,14 +81,16 @@ local retCode = {
 }
 
 for k in pairs(wandtypes) do
-  retCode[k .. 'Wand *'] = {
-    'return wrap_LOWER_wand(L, FCALL);',
+  local pty = k .. 'Wand *'
+  argCode[pty] = pty .. 'arg%d = check_' .. k:lower() .. '_wand(L, %d);'
+  retCode[pty] = {
+    'return wrap_' .. k:lower() .. '_wand(L, FCALL);',
   }
 end
 
 local function isValid(v)
-  for i = 2, #v.args do
-    if not validArgs[v.args[i]] then
+  for _, arg in ipairs(v.args) do
+    if not argCode[arg] then
       return false
     end
   end
@@ -152,6 +153,14 @@ for name in pairs(wands) do
 end
 table.sort(w)
 for _, name in ipairs(w) do
+  table.insert(t, ('static %sWand *check_%s_wand(lua_State *L, int k);'):format(name, name:lower()))
+end
+table.insert(t, '')
+for _, name in ipairs(w) do
+  table.insert(t, ('static int wrap_%s_wand(lua_State *L, %sWand *wand);'):format(name:lower(), name))
+end
+table.insert(t, '')
+for _, name in ipairs(w) do
   local wand = wands[name]
   local fmts = {
     LOWER = name:lower(),
@@ -210,18 +219,10 @@ static int new_LOWER_wand(lua_State *L) {
       add('  WANDWand *wand = check_LOWER_wand(L, 1);')
       local args = { 'wand' }
       local cf = allfuncs[func.name or (wand.prefix .. fname)]
-      for ai = 2, #cf.args do
-        local arg = cf.args[ai]
-        table.insert(args, 'arg' .. ai)
-        if arg == 'double' or arg == 'size_t' then
-          add(('  lua_Number arg%d = luaL_checknumber(L, %d);'):format(ai, ai))
-        elseif arg == 'char *' or arg == 'unsigned char *' then
-          add(('  const char *arg%d = luaL_checkstring(L, %d);'):format(ai, ai))
-        elseif arg == 'DrawingWand *' then
-          add(('  DrawingWand *arg%d = check_drawing_wand(L, %d);'):format(ai, ai))
-        else
-          error('invalid func arg ' .. arg)
-        end
+      for i = 2, #cf.args do
+        local arg = cf.args[i]
+        table.insert(args, 'arg' .. i)
+        add(('  ' .. argCode[arg]):format(i, i))
       end
       fmts.FCALL = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
       for _, line in ipairs(retCode[cf.ret]) do
