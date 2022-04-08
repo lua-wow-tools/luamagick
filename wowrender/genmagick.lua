@@ -40,12 +40,11 @@ local allfuncs, numtypes = (function()
         assert(wandtypes[name], 'unexpected wand type ' .. name)
         t[v.name] = ty
       end
-    elseif
-      v.kind == 'TypedefDecl' and v.type.qualType == 'unsigned short'
-      or v.type and sx.startswith(v.type.qualType, 'enum ')
-    then
-      print(v.name)
-      ns[v.name] = true
+    elseif v.kind == 'TypedefDecl' and v.type and v.type.qualType then
+      local ty = v.type.qualType
+      if ty == 'unsigned short' or sx.startswith(ty, 'enum ') then
+        ns[v.name] = true
+      end
     end
   end
   return t, ns
@@ -57,10 +56,6 @@ local argCode = {
   ['double'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
   ['size_t'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
 }
-
-for k in pairs(numtypes) do
-  argCode[k] = argCode[k] or 'lua_Number arg%d = luaL_checknumber(L, %d);'
-end
 
 local retCode = {
   ['char *'] = {
@@ -98,13 +93,37 @@ for k in pairs(wandtypes) do
   }
 end
 
+for k in pairs(numtypes) do
+  argCode[k] = argCode[k] or 'lua_Number arg%d = luaL_checknumber(L, %d);'
+  retCode[k] = retCode[k] or {
+    'lua_pushnumber(L, FCALL);',
+    'return 1;',
+  }
+end
+
+local skips = {
+  ['ChannelFeatures *'] = true,
+  ['ChannelStatistics *'] = true,
+  ['double *'] = true,
+  ['DrawInfo *'] = true,
+  ['Image *'] = true,
+  ['IndexPacket'] = true,
+  ['MagickSizeType'] = true,
+  ['PixelIterator *'] = true,
+  ['PixelView *'] = true,
+  ['ssize_t'] = true,
+  ['WandView *'] = true,
+}
+
 local function isValid(v)
   for _, arg in ipairs(v.args) do
     if not argCode[arg] then
       return false
     end
   end
-  return not not retCode[v.ret]
+  local ret = not not retCode[v.ret]
+  assert(ret or skips[v.ret], 'wtf is ' .. v.ret)
+  return ret
 end
 
 local wands = {}
@@ -139,6 +158,9 @@ wands.Magick.funcs.GetOptions = {
   MagickRelinquishMemory(value);
   return num_options;]],
 }
+
+-- TODO find a better way to maintain this blacklist
+wands.Magick.funcs.GetOrientationType = nil
 
 local function snake(s)
   -- c/o https://codegolf.stackexchange.com/a/177958
