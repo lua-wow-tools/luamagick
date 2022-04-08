@@ -64,9 +64,6 @@ local retCode = {
     'lua_pushnumber(L, FCALL);',
     'return 1;',
   },
-  ['DrawingWand *'] = {
-    'return wrap_LOWER_wand(L, FCALL);',
-  },
   ['MagickBooleanType'] = {
     'if (FCALL != MagickTrue) {',
     '  return LOWER_error(L, wand);',
@@ -83,6 +80,12 @@ local retCode = {
     'return 0;',
   },
 }
+
+for k in pairs(wandtypes) do
+  retCode[k .. 'Wand *'] = {
+    'return wrap_LOWER_wand(L, FCALL);',
+  }
+end
 
 local function isValid(v)
   for i = 2, #v.args do
