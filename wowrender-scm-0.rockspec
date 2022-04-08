@@ -1,3 +1,4 @@
+rockspec_format = "3.0"
 package = "wowrender"
 version = "scm-0"
 source = {
@@ -6,6 +7,10 @@ source = {
 description = {
    homepage = "https://github.com/lua-wow-tools/render",
    license = "MIT",
+}
+build_dependencies = {
+   "lpeg",
+   "penlight",
 }
 build = {
    type = "builtin",
@@ -17,6 +22,7 @@ build = {
          },
          incdirs = {
             "/usr/include/aarch64-linux-gnu/ImageMagick-6",
+            "/usr/include/x86_64-linux-gnu/ImageMagick-6",
             "/usr/include/ImageMagick-6",
          },
          libraries = {
