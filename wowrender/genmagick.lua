@@ -1,5 +1,11 @@
 local sx = require('pl.stringx')
 
+local wandtypes = {
+  Drawing = 'Draw',
+  Magick = 'Magick',
+  Pixel = 'Pixel',
+}
+
 local allfuncs = (function()
   local function splitArgs(args)
     local t = {}
@@ -13,7 +19,7 @@ local allfuncs = (function()
     return t
   end
   local function parseQualType(ty)
-    local ret, args = ty:match('^(.+)%((.+)%)$')
+    local ret, args = ty:match('^(.+)%((.*)%)$')
     return {
       ret = sx.strip(ret),
       args = splitArgs(args),
@@ -28,50 +34,16 @@ local allfuncs = (function()
   f:close()
   for _, v in ipairs(clang.inner) do
     if v.kind == 'FunctionDecl' then
-      local ty = v.type.qualType
-      if ty:match('DrawingWand') or ty:match('MagickWand') or ty:match('PixelWand') then
-        t[v.name] = parseQualType(ty)
+      local ty = parseQualType(v.type.qualType)
+      if #ty.args >= 1 and sx.endswith(ty.args[1], 'Wand *') then
+        local name = ty.args[1]:sub(1, -7)
+        assert(wandtypes[name], 'unexpected wand type ' .. name)
+        t[v.name] = ty
       end
     end
   end
   return t
 end)()
-
-local wands = {
-  Drawing = {
-    prefix = 'Draw',
-    funcs = {
-      Clear = {
-        name = 'ClearDrawingWand',
-      },
-      Clone = {
-        name = 'CloneDrawingWand',
-      },
-    },
-  },
-  Magick = {
-    prefix = 'Magick',
-    funcs = {
-      GetOptions = {
-        special = [[
-  MagickWand *wand = check_magick_wand(L, 1);
-  const char *pattern = luaL_checkstring(L, 2);
-  size_t num_options;
-  char **value = MagickGetOptions(wand, pattern, &num_options);
-  for (int i = 0; i < num_options; ++i) {
-    lua_pushstring(L, value[i]);
-    MagickRelinquishMemory(value[i]);
-  }
-  MagickRelinquishMemory(value);
-  return num_options;]],
-      },
-    },
-  },
-  Pixel = {
-    prefix = 'Pixel',
-    funcs = {},
-  },
-}
 
 local validArgs = {
   ['char *'] = true,
@@ -99,15 +71,38 @@ local function isValid(v)
   return validRets[v.ret]
 end
 
+local wands = {}
+for k, v in pairs(wandtypes) do
+  wands[k] = {
+    funcs = {},
+    prefix = v,
+  }
+end
 for k, v in pairs(allfuncs) do
-  if sx.startswith(k, 'Draw') and v.args[1] == 'DrawingWand *' and isValid(v) then
-    wands.Drawing.funcs[k:sub(5)] = {}
-  elseif sx.startswith(k, 'Magick') and v.args[1] == 'MagickWand *' and isValid(v) then
-    wands.Magick.funcs[k:sub(7)] = {}
-  elseif sx.startswith(k, 'Pixel') and v.args[1] == 'PixelWand *' and isValid(v) then
-    wands.Pixel.funcs[k:sub(6)] = {}
+  if isValid(v) then
+    local wname = v.args[1]:sub(1, -7)
+    if sx.startswith(k, wandtypes[wname]) then
+      wands[wname].funcs[k:sub(#wandtypes[wname] + 1)] = {}
+    end
   end
 end
+
+-- TODO handle these generically
+wands.Drawing.funcs.Clear = { name = 'ClearDrawingWand' }
+wands.Drawing.funcs.Clone = { name = 'CloneDrawingWand' }
+wands.Magick.funcs.GetOptions = {
+  special = [[
+  MagickWand *wand = check_magick_wand(L, 1);
+  const char *pattern = luaL_checkstring(L, 2);
+  size_t num_options;
+  char **value = MagickGetOptions(wand, pattern, &num_options);
+  for (int i = 0; i < num_options; ++i) {
+    lua_pushstring(L, value[i]);
+    MagickRelinquishMemory(value[i]);
+  }
+  MagickRelinquishMemory(value);
+  return num_options;]],
+}
 
 local function snake(s)
   -- c/o https://codegolf.stackexchange.com/a/177958
