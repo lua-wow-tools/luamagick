@@ -265,8 +265,7 @@ for _, name in ipairs(w) do
   lua_pushstring(L, "__index");
   lua_pushvalue(L, -2);
   lua_settable(L, -3);
-  luaL_register(L, NULL, LOWER_wand_index);
-]]):gsub('LOWER', name:lower()))
+  luaL_register(L, NULL, LOWER_wand_index);]]):gsub('LOWER', name:lower()))
   )
 end
 
