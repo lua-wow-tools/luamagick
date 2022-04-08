@@ -67,6 +67,10 @@ local wands = {
       },
     },
   },
+  Pixel = {
+    prefix = 'Pixel',
+    funcs = {},
+  },
 }
 
 local validArgs = {
@@ -100,6 +104,8 @@ for k, v in pairs(allfuncs) do
     wands.Drawing.funcs[k:sub(5)] = {}
   elseif sx.startswith(k, 'Magick') and v.args[1] == 'MagickWand *' and isValid(v) then
     wands.Magick.funcs[k:sub(7)] = {}
+  elseif sx.startswith(k, 'Pixel') and v.args[1] == 'PixelWand *' and isValid(v) then
+    wands.Pixel.funcs[k:sub(6)] = {}
   end
 end
 
