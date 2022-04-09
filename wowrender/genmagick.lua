@@ -6,6 +6,13 @@ local wandtypes = {
   Pixel = 'Pixel',
 }
 
+local inttypes = {
+  ['unsigned long'] = true,
+  ['unsigned long long'] = true,
+  ['unsigned short'] = true,
+  ['long'] = true,
+}
+
 local allfuncs, numtypes = (function()
   local function splitArgs(args)
     local t = {}
@@ -42,7 +49,7 @@ local allfuncs, numtypes = (function()
       end
     elseif v.kind == 'TypedefDecl' and v.type and v.type.qualType then
       local ty = v.type.qualType
-      if ty == 'unsigned short' or sx.startswith(ty, 'enum ') then
+      if inttypes[ty] or ns[ty] or sx.startswith(ty, 'enum ') then
         ns[v.name] = true
       end
     end
@@ -107,11 +114,8 @@ local skips = {
   ['double *'] = true,
   ['DrawInfo *'] = true,
   ['Image *'] = true,
-  ['IndexPacket'] = true,
-  ['MagickSizeType'] = true,
   ['PixelIterator *'] = true,
   ['PixelView *'] = true,
-  ['ssize_t'] = true,
   ['WandView *'] = true,
 }
 
@@ -122,7 +126,9 @@ local function isValid(v)
     end
   end
   local ret = not not retCode[v.ret]
-  assert(ret or skips[v.ret], 'wtf is ' .. v.ret)
+  local skip = skips[v.ret]
+  assert(ret or skip, 'wtf is ' .. v.ret)
+  assert(ret ~= skip, 'stale value for ' .. v.ret)
   return ret
 end
 
