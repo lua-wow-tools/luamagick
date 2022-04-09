@@ -3165,6 +3165,17 @@ static int magick_read_image(lua_State *L) {
   return 1;
 }
 
+static int magick_read_image_blob(lua_State *L) {
+  MagickWand *wand = check_magick_wand(L, 1);
+  size_t length;
+  const char *data = luaL_checklstring(L, 2, &length);
+  if (MagickReadImageBlob(wand, data, length) != MagickTrue) {
+    return magick_error(L, wand);
+  }
+  lua_pushboolean(L, 1);
+  return 1;
+}
+
 static int magick_reduce_noise_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   lua_Number arg2 = luaL_checknumber(L, 2);
@@ -4762,6 +4773,7 @@ static struct luaL_Reg magick_wand_index[] = {
   {"random_threshold_image", magick_random_threshold_image},
   {"random_threshold_image_channel", magick_random_threshold_image_channel},
   {"read_image", magick_read_image},
+  {"read_image_blob", magick_read_image_blob},
   {"reduce_noise_image", magick_reduce_noise_image},
   {"region_of_interest_image", magick_region_of_interest_image},
   {"remap_image", magick_remap_image},

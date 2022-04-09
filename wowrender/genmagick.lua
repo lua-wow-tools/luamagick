@@ -164,6 +164,17 @@ wands.Magick.funcs.GetOptions = {
   MagickRelinquishMemory(value);
   return num_options;]],
 }
+wands.Magick.funcs.ReadImageBlob = {
+  special = [[
+  MagickWand *wand = check_magick_wand(L, 1);
+  size_t length;
+  const char *data = luaL_checklstring(L, 2, &length);
+  if (MagickReadImageBlob(wand, data, length) != MagickTrue) {
+    return magick_error(L, wand);
+  }
+  lua_pushboolean(L, 1);
+  return 1;]],
+}
 
 -- TODO find a better way to maintain this blacklist
 wands.Magick.funcs.GetOrientationType = nil
