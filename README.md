@@ -148,6 +148,7 @@ luarocks install luamagick
 | `DrawSkewX(wand, ...)` | `wand:skew_x(...)` |
 | `DrawSkewY(wand, ...)` | `wand:skew_y(...)` |
 | `DrawTranslate(wand, ...)` | `wand:translate(...)` |
+
 ## MagickWand
 
 | C API | Lua API |
@@ -497,6 +498,7 @@ luarocks install luamagick
 | `MagickWhiteThresholdImage(wand, ...)` | `wand:white_threshold_image(...)` |
 | `MagickWriteImage(wand, ...)` | `wand:write_image(...)` |
 | `MagickWriteImages(wand, ...)` | `wand:write_images(...)` |
+
 ## PixelWand
 
 | C API | Lua API |

@@ -325,8 +325,8 @@ luarocks install luamagick
 > for k, v in sorted(wand.funcs) do
 | `$(v.name or wand.prefix..k)(wand, ...)` | `wand:$(snake(k))(...)` |
 > end
-> end
 
+> end
 > for name in sorted(wands) do
 [New$(name)Wand]: https://imagemagick.org/api/$(name:lower())-wand.php#New$(name)Wand
 > end

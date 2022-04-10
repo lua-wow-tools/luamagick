@@ -3,6 +3,7 @@ repos:
   rev: v4.0.1
   hooks:
   - id: check-json
+  - id: check-toml
   - id: check-yaml
   - id: end-of-file-fixer
   - id: trailing-whitespace
@@ -17,16 +18,35 @@ repos:
   - id: forbid-tabs
 - repo: local
   hooks:
-  - id: build-and-test
-    name: build and test
-    entry: sh -c "lua genmagick.lua && luarocks build --no-install && busted"
-    language: system
-    pass_filenames: false
   - id: luacheck
     name: luacheck
     entry: luacheck .
     language: system
     types: [lua]
+  - id: generate-files
+    name: generate files
+    entry: lua genmagick.lua
+    language: system
+    pass_filenames: false
+  - id: build
+    name: build
+    entry: luarocks build --no-install
+    language: system
+    pass_filenames: false
+  - id: luarocks test
+    name: test
+    entry: luarocks test --test-type=busted
+    language: system
+    pass_filenames: false
+  - id: luarocks-lint
+    name: luarocks lint
+    entry: luarocks lint
+    files: .*\.rockspec
+    language: system
+- repo: https://github.com/markdownlint/markdownlint
+  rev: v0.11.0
+  hooks:
+  - id: markdownlint
 - repo: meta
   hooks:
   - id: check-hooks-apply
