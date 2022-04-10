@@ -3,6 +3,6 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "pre-commit run -a",
+  "postCreateCommand": "pre-commit install && pre-commit run -a",
   "remoteUser": "vscode"
 }
