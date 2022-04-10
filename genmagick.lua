@@ -217,14 +217,6 @@ pf.write(
 #include <lua.h>
 #include <wand/MagickWand.h>
 
-> for name in sorted(wands) do
-static $(name)Wand *check_$(name:lower())_wand(lua_State *L, int k);
-> end
-
-> for name in sorted(wands) do
-static int wrap_$(name:lower())_wand(lua_State *L, $(name)Wand *wand);
-> end
-
 > for name, wand in sorted(wands) do
 static const char $(name:lower())_wand_meta_name[] = "wowrender.magick $(name:lower()) wand";
 
@@ -255,6 +247,8 @@ static int new_$(name:lower())_wand(lua_State *L) {
   return wrap_$(name:lower())_wand(L, New$(name)Wand());
 }
 
+> end
+> for name, wand in sorted(wands) do
 > for fname, func in sorted(wand.funcs) do
 static int $(name:lower())_$(snake(fname))(lua_State *L) {
 $(func.special or funcbody(name, fname))

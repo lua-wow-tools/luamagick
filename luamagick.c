@@ -2,14 +2,6 @@
 #include <lua.h>
 #include <wand/MagickWand.h>
 
-static DrawingWand *check_drawing_wand(lua_State *L, int k);
-static MagickWand *check_magick_wand(lua_State *L, int k);
-static PixelWand *check_pixel_wand(lua_State *L, int k);
-
-static int wrap_drawing_wand(lua_State *L, DrawingWand *wand);
-static int wrap_magick_wand(lua_State *L, MagickWand *wand);
-static int wrap_pixel_wand(lua_State *L, PixelWand *wand);
-
 static const char drawing_wand_meta_name[] = "wowrender.magick drawing wand";
 
 static int drawing_error(lua_State *L, DrawingWand *wand) {
@@ -37,6 +29,64 @@ static int wrap_drawing_wand(lua_State *L, DrawingWand *wand) {
 
 static int new_drawing_wand(lua_State *L) {
   return wrap_drawing_wand(L, NewDrawingWand());
+}
+
+static const char magick_wand_meta_name[] = "wowrender.magick magick wand";
+
+static int magick_error(lua_State *L, MagickWand *wand) {
+  ExceptionType severity;
+  char *error = MagickGetException(wand, &severity);
+  lua_pushnil(L);
+  lua_pushstring(L, error);
+  MagickRelinquishMemory(error);
+  return 2;
+}
+
+static MagickWand *check_magick_wand(lua_State *L, int k) {
+  void *ud = luaL_checkudata(L, k, magick_wand_meta_name);
+  luaL_argcheck(L, ud != NULL, k, "magick wand expected");
+  return *(MagickWand **)ud;
+}
+
+static int wrap_magick_wand(lua_State *L, MagickWand *wand) {
+  MagickWand **p = lua_newuserdata(L, sizeof(*p));
+  luaL_getmetatable(L, magick_wand_meta_name);
+  lua_setmetatable(L, -2);
+  *p = wand;
+  return 1;
+}
+
+static int new_magick_wand(lua_State *L) {
+  return wrap_magick_wand(L, NewMagickWand());
+}
+
+static const char pixel_wand_meta_name[] = "wowrender.magick pixel wand";
+
+static int pixel_error(lua_State *L, PixelWand *wand) {
+  ExceptionType severity;
+  char *error = PixelGetException(wand, &severity);
+  lua_pushnil(L);
+  lua_pushstring(L, error);
+  MagickRelinquishMemory(error);
+  return 2;
+}
+
+static PixelWand *check_pixel_wand(lua_State *L, int k) {
+  void *ud = luaL_checkudata(L, k, pixel_wand_meta_name);
+  luaL_argcheck(L, ud != NULL, k, "pixel wand expected");
+  return *(PixelWand **)ud;
+}
+
+static int wrap_pixel_wand(lua_State *L, PixelWand *wand) {
+  PixelWand **p = lua_newuserdata(L, sizeof(*p));
+  luaL_getmetatable(L, pixel_wand_meta_name);
+  lua_setmetatable(L, -2);
+  *p = wand;
+  return 1;
+}
+
+static int new_pixel_wand(lua_State *L) {
+  return wrap_pixel_wand(L, NewPixelWand());
 }
 
 static int drawing_annotation(lua_State *L) {
@@ -1161,35 +1211,6 @@ static struct luaL_Reg drawing_wand_index[] = {
   {"translate", drawing_translate},
   {NULL, NULL},
 };
-
-static const char magick_wand_meta_name[] = "wowrender.magick magick wand";
-
-static int magick_error(lua_State *L, MagickWand *wand) {
-  ExceptionType severity;
-  char *error = MagickGetException(wand, &severity);
-  lua_pushnil(L);
-  lua_pushstring(L, error);
-  MagickRelinquishMemory(error);
-  return 2;
-}
-
-static MagickWand *check_magick_wand(lua_State *L, int k) {
-  void *ud = luaL_checkudata(L, k, magick_wand_meta_name);
-  luaL_argcheck(L, ud != NULL, k, "magick wand expected");
-  return *(MagickWand **)ud;
-}
-
-static int wrap_magick_wand(lua_State *L, MagickWand *wand) {
-  MagickWand **p = lua_newuserdata(L, sizeof(*p));
-  luaL_getmetatable(L, magick_wand_meta_name);
-  lua_setmetatable(L, -2);
-  *p = wand;
-  return 1;
-}
-
-static int new_magick_wand(lua_State *L) {
-  return wrap_magick_wand(L, NewMagickWand());
-}
 
 static int magick_adaptive_blur_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
@@ -4909,35 +4930,6 @@ static struct luaL_Reg magick_wand_index[] = {
   {"write_images", magick_write_images},
   {NULL, NULL},
 };
-
-static const char pixel_wand_meta_name[] = "wowrender.magick pixel wand";
-
-static int pixel_error(lua_State *L, PixelWand *wand) {
-  ExceptionType severity;
-  char *error = PixelGetException(wand, &severity);
-  lua_pushnil(L);
-  lua_pushstring(L, error);
-  MagickRelinquishMemory(error);
-  return 2;
-}
-
-static PixelWand *check_pixel_wand(lua_State *L, int k) {
-  void *ud = luaL_checkudata(L, k, pixel_wand_meta_name);
-  luaL_argcheck(L, ud != NULL, k, "pixel wand expected");
-  return *(PixelWand **)ud;
-}
-
-static int wrap_pixel_wand(lua_State *L, PixelWand *wand) {
-  PixelWand **p = lua_newuserdata(L, sizeof(*p));
-  luaL_getmetatable(L, pixel_wand_meta_name);
-  lua_setmetatable(L, -2);
-  *p = wand;
-  return 1;
-}
-
-static int new_pixel_wand(lua_State *L) {
-  return wrap_pixel_wand(L, NewPixelWand());
-}
 
 static int pixel_clear_exception(lua_State *L) {
   PixelWand *arg1 = check_pixel_wand(L, 1);
