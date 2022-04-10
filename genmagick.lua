@@ -313,43 +313,28 @@ luarocks install luamagick
 
 | C API | Lua API |
 | --- | --- |
-| [`NewMagickWand()`][NewMagickWand] | `require('luamagick').new_magick_wand()` |
-| [`NewDrawingWand()`][NewDrawingWand] | `require('luamagick').new_drawing_wand()` |
-| [`NewPixelWand()`][NewPixelWand] | `require('luamagick').new_pixel_wand()` |
+> for name in sorted(wands) do
+| [`New$(name)Wand()`][New$(name)Wand] | `require('luamagick').new_$(name:lower())_wand()` |
+> end
 
-## MagickWand
+> for name, wand in sorted(wands) do
+## $(name)Wand
 
 | C API | Lua API |
 | --- | --- |
-> for k, v in sort(wands.Magick.funcs) do
-| `$(v.name or 'Magick'..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+> for k, v in sorted(wand.funcs) do
+| `$(v.name or wand.prefix..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+> end
 > end
 
-## DrawingWand
-
-| C API | Lua API |
-| --- | --- |
-> for k, v in sort(wands.Drawing.funcs) do
-| `$(v.name or 'Draw'..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+> for name in sorted(wands) do
+[New$(name)Wand]: https://imagemagick.org/api/$(name:lower())-wand.php#New$(name)Wand
 > end
-
-## PixelWand
-
-| C API | Lua API |
-| --- | --- |
-> for k, v in sort(wands.Pixel.funcs) do
-| `$(v.name or 'Pixel'..k)(wand, ...)` | `wand:$(snake(k))(...)` |
-> end
-
-[NewMagickWand]: https://imagemagick.org/api/magick-wand.php#NewMagickWand
-[NewDrawingWand]: https://imagemagick.org/api/drawing-wand.php#NewDrawingWand
-[NewPixelWand]: https://imagemagick.org/api/pixel-wand.php#NewPixelWand
 ]],
     {
       _escape = '>',
       snake = snake,
-      sort = require('pl.tablex').sort,
-      tostring = tostring,
+      sorted = require('pl.tablex').sort,
       wands = wands,
     }
   ))

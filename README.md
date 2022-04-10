@@ -12,10 +12,142 @@ luarocks install luamagick
 
 | C API | Lua API |
 | --- | --- |
-| [`NewMagickWand()`][NewMagickWand] | `require('luamagick').new_magick_wand()` |
 | [`NewDrawingWand()`][NewDrawingWand] | `require('luamagick').new_drawing_wand()` |
+| [`NewMagickWand()`][NewMagickWand] | `require('luamagick').new_magick_wand()` |
 | [`NewPixelWand()`][NewPixelWand] | `require('luamagick').new_pixel_wand()` |
 
+## DrawingWand
+
+| C API | Lua API |
+| --- | --- |
+| `DrawAnnotation(wand, ...)` | `wand:annotation(...)` |
+| `DrawArc(wand, ...)` | `wand:arc(...)` |
+| `DrawCircle(wand, ...)` | `wand:circle(...)` |
+| `ClearDrawingWand(wand, ...)` | `wand:clear(...)` |
+| `DrawClearException(wand, ...)` | `wand:clear_exception(...)` |
+| `CloneDrawingWand(wand, ...)` | `wand:clone(...)` |
+| `DrawColor(wand, ...)` | `wand:color(...)` |
+| `DrawComment(wand, ...)` | `wand:comment(...)` |
+| `DrawComposite(wand, ...)` | `wand:composite(...)` |
+| `DrawEllipse(wand, ...)` | `wand:ellipse(...)` |
+| `DrawGetBorderColor(wand, ...)` | `wand:get_border_color(...)` |
+| `DrawGetClipPath(wand, ...)` | `wand:get_clip_path(...)` |
+| `DrawGetClipRule(wand, ...)` | `wand:get_clip_rule(...)` |
+| `DrawGetClipUnits(wand, ...)` | `wand:get_clip_units(...)` |
+| `DrawGetDensity(wand, ...)` | `wand:get_density(...)` |
+| `DrawGetExceptionType(wand, ...)` | `wand:get_exception_type(...)` |
+| `DrawGetFillAlpha(wand, ...)` | `wand:get_fill_alpha(...)` |
+| `DrawGetFillColor(wand, ...)` | `wand:get_fill_color(...)` |
+| `DrawGetFillOpacity(wand, ...)` | `wand:get_fill_opacity(...)` |
+| `DrawGetFillRule(wand, ...)` | `wand:get_fill_rule(...)` |
+| `DrawGetFont(wand, ...)` | `wand:get_font(...)` |
+| `DrawGetFontFamily(wand, ...)` | `wand:get_font_family(...)` |
+| `DrawGetFontSize(wand, ...)` | `wand:get_font_size(...)` |
+| `DrawGetFontStretch(wand, ...)` | `wand:get_font_stretch(...)` |
+| `DrawGetFontStyle(wand, ...)` | `wand:get_font_style(...)` |
+| `DrawGetFontWeight(wand, ...)` | `wand:get_font_weight(...)` |
+| `DrawGetGravity(wand, ...)` | `wand:get_gravity(...)` |
+| `DrawGetOpacity(wand, ...)` | `wand:get_opacity(...)` |
+| `DrawGetStrokeAlpha(wand, ...)` | `wand:get_stroke_alpha(...)` |
+| `DrawGetStrokeAntialias(wand, ...)` | `wand:get_stroke_antialias(...)` |
+| `DrawGetStrokeColor(wand, ...)` | `wand:get_stroke_color(...)` |
+| `DrawGetStrokeDashOffset(wand, ...)` | `wand:get_stroke_dash_offset(...)` |
+| `DrawGetStrokeLineCap(wand, ...)` | `wand:get_stroke_line_cap(...)` |
+| `DrawGetStrokeLineJoin(wand, ...)` | `wand:get_stroke_line_join(...)` |
+| `DrawGetStrokeMiterLimit(wand, ...)` | `wand:get_stroke_miter_limit(...)` |
+| `DrawGetStrokeOpacity(wand, ...)` | `wand:get_stroke_opacity(...)` |
+| `DrawGetStrokeWidth(wand, ...)` | `wand:get_stroke_width(...)` |
+| `DrawGetTextAlignment(wand, ...)` | `wand:get_text_alignment(...)` |
+| `DrawGetTextAntialias(wand, ...)` | `wand:get_text_antialias(...)` |
+| `DrawGetTextDecoration(wand, ...)` | `wand:get_text_decoration(...)` |
+| `DrawGetTextDirection(wand, ...)` | `wand:get_text_direction(...)` |
+| `DrawGetTextEncoding(wand, ...)` | `wand:get_text_encoding(...)` |
+| `DrawGetTextInterlineSpacing(wand, ...)` | `wand:get_text_interline_spacing(...)` |
+| `DrawGetTextInterwordSpacing(wand, ...)` | `wand:get_text_interword_spacing(...)` |
+| `DrawGetTextKerning(wand, ...)` | `wand:get_text_kerning(...)` |
+| `DrawGetTextUnderColor(wand, ...)` | `wand:get_text_under_color(...)` |
+| `DrawGetVectorGraphics(wand, ...)` | `wand:get_vector_graphics(...)` |
+| `DrawLine(wand, ...)` | `wand:line(...)` |
+| `DrawMatte(wand, ...)` | `wand:matte(...)` |
+| `DrawPathClose(wand, ...)` | `wand:path_close(...)` |
+| `DrawPathCurveToAbsolute(wand, ...)` | `wand:path_curve_to_absolute(...)` |
+| `DrawPathCurveToQuadraticBezierAbsolute(wand, ...)` | `wand:path_curve_to_quadratic_bezier_absolute(...)` |
+| `DrawPathCurveToQuadraticBezierRelative(wand, ...)` | `wand:path_curve_to_quadratic_bezier_relative(...)` |
+| `DrawPathCurveToQuadraticBezierSmoothAbsolute(wand, ...)` | `wand:path_curve_to_quadratic_bezier_smooth_absolute(...)` |
+| `DrawPathCurveToQuadraticBezierSmoothRelative(wand, ...)` | `wand:path_curve_to_quadratic_bezier_smooth_relative(...)` |
+| `DrawPathCurveToRelative(wand, ...)` | `wand:path_curve_to_relative(...)` |
+| `DrawPathCurveToSmoothAbsolute(wand, ...)` | `wand:path_curve_to_smooth_absolute(...)` |
+| `DrawPathCurveToSmoothRelative(wand, ...)` | `wand:path_curve_to_smooth_relative(...)` |
+| `DrawPathEllipticArcAbsolute(wand, ...)` | `wand:path_elliptic_arc_absolute(...)` |
+| `DrawPathEllipticArcRelative(wand, ...)` | `wand:path_elliptic_arc_relative(...)` |
+| `DrawPathFinish(wand, ...)` | `wand:path_finish(...)` |
+| `DrawPathLineToAbsolute(wand, ...)` | `wand:path_line_to_absolute(...)` |
+| `DrawPathLineToHorizontalAbsolute(wand, ...)` | `wand:path_line_to_horizontal_absolute(...)` |
+| `DrawPathLineToHorizontalRelative(wand, ...)` | `wand:path_line_to_horizontal_relative(...)` |
+| `DrawPathLineToRelative(wand, ...)` | `wand:path_line_to_relative(...)` |
+| `DrawPathLineToVerticalAbsolute(wand, ...)` | `wand:path_line_to_vertical_absolute(...)` |
+| `DrawPathLineToVerticalRelative(wand, ...)` | `wand:path_line_to_vertical_relative(...)` |
+| `DrawPathMoveToAbsolute(wand, ...)` | `wand:path_move_to_absolute(...)` |
+| `DrawPathMoveToRelative(wand, ...)` | `wand:path_move_to_relative(...)` |
+| `DrawPathStart(wand, ...)` | `wand:path_start(...)` |
+| `DrawPoint(wand, ...)` | `wand:point(...)` |
+| `DrawPopClipPath(wand, ...)` | `wand:pop_clip_path(...)` |
+| `DrawPopDefs(wand, ...)` | `wand:pop_defs(...)` |
+| `DrawPopGraphicContext(wand, ...)` | `wand:pop_graphic_context(...)` |
+| `DrawPopPattern(wand, ...)` | `wand:pop_pattern(...)` |
+| `DrawPushClipPath(wand, ...)` | `wand:push_clip_path(...)` |
+| `DrawPushDefs(wand, ...)` | `wand:push_defs(...)` |
+| `DrawPushGraphicContext(wand, ...)` | `wand:push_graphic_context(...)` |
+| `DrawPushPattern(wand, ...)` | `wand:push_pattern(...)` |
+| `DrawRectangle(wand, ...)` | `wand:rectangle(...)` |
+| `DrawRender(wand, ...)` | `wand:render(...)` |
+| `DrawResetVectorGraphics(wand, ...)` | `wand:reset_vector_graphics(...)` |
+| `DrawRotate(wand, ...)` | `wand:rotate(...)` |
+| `DrawRoundRectangle(wand, ...)` | `wand:round_rectangle(...)` |
+| `DrawScale(wand, ...)` | `wand:scale(...)` |
+| `DrawSetBorderColor(wand, ...)` | `wand:set_border_color(...)` |
+| `DrawSetClipPath(wand, ...)` | `wand:set_clip_path(...)` |
+| `DrawSetClipRule(wand, ...)` | `wand:set_clip_rule(...)` |
+| `DrawSetClipUnits(wand, ...)` | `wand:set_clip_units(...)` |
+| `DrawSetDensity(wand, ...)` | `wand:set_density(...)` |
+| `DrawSetFillAlpha(wand, ...)` | `wand:set_fill_alpha(...)` |
+| `DrawSetFillColor(wand, ...)` | `wand:set_fill_color(...)` |
+| `DrawSetFillOpacity(wand, ...)` | `wand:set_fill_opacity(...)` |
+| `DrawSetFillPatternURL(wand, ...)` | `wand:set_fill_pattern_url(...)` |
+| `DrawSetFillRule(wand, ...)` | `wand:set_fill_rule(...)` |
+| `DrawSetFont(wand, ...)` | `wand:set_font(...)` |
+| `DrawSetFontFamily(wand, ...)` | `wand:set_font_family(...)` |
+| `DrawSetFontResolution(wand, ...)` | `wand:set_font_resolution(...)` |
+| `DrawSetFontSize(wand, ...)` | `wand:set_font_size(...)` |
+| `DrawSetFontStretch(wand, ...)` | `wand:set_font_stretch(...)` |
+| `DrawSetFontStyle(wand, ...)` | `wand:set_font_style(...)` |
+| `DrawSetFontWeight(wand, ...)` | `wand:set_font_weight(...)` |
+| `DrawSetGravity(wand, ...)` | `wand:set_gravity(...)` |
+| `DrawSetOpacity(wand, ...)` | `wand:set_opacity(...)` |
+| `DrawSetStrokeAlpha(wand, ...)` | `wand:set_stroke_alpha(...)` |
+| `DrawSetStrokeAntialias(wand, ...)` | `wand:set_stroke_antialias(...)` |
+| `DrawSetStrokeColor(wand, ...)` | `wand:set_stroke_color(...)` |
+| `DrawSetStrokeDashOffset(wand, ...)` | `wand:set_stroke_dash_offset(...)` |
+| `DrawSetStrokeLineCap(wand, ...)` | `wand:set_stroke_line_cap(...)` |
+| `DrawSetStrokeLineJoin(wand, ...)` | `wand:set_stroke_line_join(...)` |
+| `DrawSetStrokeMiterLimit(wand, ...)` | `wand:set_stroke_miter_limit(...)` |
+| `DrawSetStrokeOpacity(wand, ...)` | `wand:set_stroke_opacity(...)` |
+| `DrawSetStrokePatternURL(wand, ...)` | `wand:set_stroke_pattern_url(...)` |
+| `DrawSetStrokeWidth(wand, ...)` | `wand:set_stroke_width(...)` |
+| `DrawSetTextAlignment(wand, ...)` | `wand:set_text_alignment(...)` |
+| `DrawSetTextAntialias(wand, ...)` | `wand:set_text_antialias(...)` |
+| `DrawSetTextDecoration(wand, ...)` | `wand:set_text_decoration(...)` |
+| `DrawSetTextDirection(wand, ...)` | `wand:set_text_direction(...)` |
+| `DrawSetTextEncoding(wand, ...)` | `wand:set_text_encoding(...)` |
+| `DrawSetTextInterlineSpacing(wand, ...)` | `wand:set_text_interline_spacing(...)` |
+| `DrawSetTextInterwordSpacing(wand, ...)` | `wand:set_text_interword_spacing(...)` |
+| `DrawSetTextKerning(wand, ...)` | `wand:set_text_kerning(...)` |
+| `DrawSetTextUnderColor(wand, ...)` | `wand:set_text_under_color(...)` |
+| `DrawSetVectorGraphics(wand, ...)` | `wand:set_vector_graphics(...)` |
+| `DrawSetViewbox(wand, ...)` | `wand:set_viewbox(...)` |
+| `DrawSkewX(wand, ...)` | `wand:skew_x(...)` |
+| `DrawSkewY(wand, ...)` | `wand:skew_y(...)` |
+| `DrawTranslate(wand, ...)` | `wand:translate(...)` |
 ## MagickWand
 
 | C API | Lua API |
@@ -365,140 +497,6 @@ luarocks install luamagick
 | `MagickWhiteThresholdImage(wand, ...)` | `wand:white_threshold_image(...)` |
 | `MagickWriteImage(wand, ...)` | `wand:write_image(...)` |
 | `MagickWriteImages(wand, ...)` | `wand:write_images(...)` |
-
-## DrawingWand
-
-| C API | Lua API |
-| --- | --- |
-| `DrawAnnotation(wand, ...)` | `wand:annotation(...)` |
-| `DrawArc(wand, ...)` | `wand:arc(...)` |
-| `DrawCircle(wand, ...)` | `wand:circle(...)` |
-| `ClearDrawingWand(wand, ...)` | `wand:clear(...)` |
-| `DrawClearException(wand, ...)` | `wand:clear_exception(...)` |
-| `CloneDrawingWand(wand, ...)` | `wand:clone(...)` |
-| `DrawColor(wand, ...)` | `wand:color(...)` |
-| `DrawComment(wand, ...)` | `wand:comment(...)` |
-| `DrawComposite(wand, ...)` | `wand:composite(...)` |
-| `DrawEllipse(wand, ...)` | `wand:ellipse(...)` |
-| `DrawGetBorderColor(wand, ...)` | `wand:get_border_color(...)` |
-| `DrawGetClipPath(wand, ...)` | `wand:get_clip_path(...)` |
-| `DrawGetClipRule(wand, ...)` | `wand:get_clip_rule(...)` |
-| `DrawGetClipUnits(wand, ...)` | `wand:get_clip_units(...)` |
-| `DrawGetDensity(wand, ...)` | `wand:get_density(...)` |
-| `DrawGetExceptionType(wand, ...)` | `wand:get_exception_type(...)` |
-| `DrawGetFillAlpha(wand, ...)` | `wand:get_fill_alpha(...)` |
-| `DrawGetFillColor(wand, ...)` | `wand:get_fill_color(...)` |
-| `DrawGetFillOpacity(wand, ...)` | `wand:get_fill_opacity(...)` |
-| `DrawGetFillRule(wand, ...)` | `wand:get_fill_rule(...)` |
-| `DrawGetFont(wand, ...)` | `wand:get_font(...)` |
-| `DrawGetFontFamily(wand, ...)` | `wand:get_font_family(...)` |
-| `DrawGetFontSize(wand, ...)` | `wand:get_font_size(...)` |
-| `DrawGetFontStretch(wand, ...)` | `wand:get_font_stretch(...)` |
-| `DrawGetFontStyle(wand, ...)` | `wand:get_font_style(...)` |
-| `DrawGetFontWeight(wand, ...)` | `wand:get_font_weight(...)` |
-| `DrawGetGravity(wand, ...)` | `wand:get_gravity(...)` |
-| `DrawGetOpacity(wand, ...)` | `wand:get_opacity(...)` |
-| `DrawGetStrokeAlpha(wand, ...)` | `wand:get_stroke_alpha(...)` |
-| `DrawGetStrokeAntialias(wand, ...)` | `wand:get_stroke_antialias(...)` |
-| `DrawGetStrokeColor(wand, ...)` | `wand:get_stroke_color(...)` |
-| `DrawGetStrokeDashOffset(wand, ...)` | `wand:get_stroke_dash_offset(...)` |
-| `DrawGetStrokeLineCap(wand, ...)` | `wand:get_stroke_line_cap(...)` |
-| `DrawGetStrokeLineJoin(wand, ...)` | `wand:get_stroke_line_join(...)` |
-| `DrawGetStrokeMiterLimit(wand, ...)` | `wand:get_stroke_miter_limit(...)` |
-| `DrawGetStrokeOpacity(wand, ...)` | `wand:get_stroke_opacity(...)` |
-| `DrawGetStrokeWidth(wand, ...)` | `wand:get_stroke_width(...)` |
-| `DrawGetTextAlignment(wand, ...)` | `wand:get_text_alignment(...)` |
-| `DrawGetTextAntialias(wand, ...)` | `wand:get_text_antialias(...)` |
-| `DrawGetTextDecoration(wand, ...)` | `wand:get_text_decoration(...)` |
-| `DrawGetTextDirection(wand, ...)` | `wand:get_text_direction(...)` |
-| `DrawGetTextEncoding(wand, ...)` | `wand:get_text_encoding(...)` |
-| `DrawGetTextInterlineSpacing(wand, ...)` | `wand:get_text_interline_spacing(...)` |
-| `DrawGetTextInterwordSpacing(wand, ...)` | `wand:get_text_interword_spacing(...)` |
-| `DrawGetTextKerning(wand, ...)` | `wand:get_text_kerning(...)` |
-| `DrawGetTextUnderColor(wand, ...)` | `wand:get_text_under_color(...)` |
-| `DrawGetVectorGraphics(wand, ...)` | `wand:get_vector_graphics(...)` |
-| `DrawLine(wand, ...)` | `wand:line(...)` |
-| `DrawMatte(wand, ...)` | `wand:matte(...)` |
-| `DrawPathClose(wand, ...)` | `wand:path_close(...)` |
-| `DrawPathCurveToAbsolute(wand, ...)` | `wand:path_curve_to_absolute(...)` |
-| `DrawPathCurveToQuadraticBezierAbsolute(wand, ...)` | `wand:path_curve_to_quadratic_bezier_absolute(...)` |
-| `DrawPathCurveToQuadraticBezierRelative(wand, ...)` | `wand:path_curve_to_quadratic_bezier_relative(...)` |
-| `DrawPathCurveToQuadraticBezierSmoothAbsolute(wand, ...)` | `wand:path_curve_to_quadratic_bezier_smooth_absolute(...)` |
-| `DrawPathCurveToQuadraticBezierSmoothRelative(wand, ...)` | `wand:path_curve_to_quadratic_bezier_smooth_relative(...)` |
-| `DrawPathCurveToRelative(wand, ...)` | `wand:path_curve_to_relative(...)` |
-| `DrawPathCurveToSmoothAbsolute(wand, ...)` | `wand:path_curve_to_smooth_absolute(...)` |
-| `DrawPathCurveToSmoothRelative(wand, ...)` | `wand:path_curve_to_smooth_relative(...)` |
-| `DrawPathEllipticArcAbsolute(wand, ...)` | `wand:path_elliptic_arc_absolute(...)` |
-| `DrawPathEllipticArcRelative(wand, ...)` | `wand:path_elliptic_arc_relative(...)` |
-| `DrawPathFinish(wand, ...)` | `wand:path_finish(...)` |
-| `DrawPathLineToAbsolute(wand, ...)` | `wand:path_line_to_absolute(...)` |
-| `DrawPathLineToHorizontalAbsolute(wand, ...)` | `wand:path_line_to_horizontal_absolute(...)` |
-| `DrawPathLineToHorizontalRelative(wand, ...)` | `wand:path_line_to_horizontal_relative(...)` |
-| `DrawPathLineToRelative(wand, ...)` | `wand:path_line_to_relative(...)` |
-| `DrawPathLineToVerticalAbsolute(wand, ...)` | `wand:path_line_to_vertical_absolute(...)` |
-| `DrawPathLineToVerticalRelative(wand, ...)` | `wand:path_line_to_vertical_relative(...)` |
-| `DrawPathMoveToAbsolute(wand, ...)` | `wand:path_move_to_absolute(...)` |
-| `DrawPathMoveToRelative(wand, ...)` | `wand:path_move_to_relative(...)` |
-| `DrawPathStart(wand, ...)` | `wand:path_start(...)` |
-| `DrawPoint(wand, ...)` | `wand:point(...)` |
-| `DrawPopClipPath(wand, ...)` | `wand:pop_clip_path(...)` |
-| `DrawPopDefs(wand, ...)` | `wand:pop_defs(...)` |
-| `DrawPopGraphicContext(wand, ...)` | `wand:pop_graphic_context(...)` |
-| `DrawPopPattern(wand, ...)` | `wand:pop_pattern(...)` |
-| `DrawPushClipPath(wand, ...)` | `wand:push_clip_path(...)` |
-| `DrawPushDefs(wand, ...)` | `wand:push_defs(...)` |
-| `DrawPushGraphicContext(wand, ...)` | `wand:push_graphic_context(...)` |
-| `DrawPushPattern(wand, ...)` | `wand:push_pattern(...)` |
-| `DrawRectangle(wand, ...)` | `wand:rectangle(...)` |
-| `DrawRender(wand, ...)` | `wand:render(...)` |
-| `DrawResetVectorGraphics(wand, ...)` | `wand:reset_vector_graphics(...)` |
-| `DrawRotate(wand, ...)` | `wand:rotate(...)` |
-| `DrawRoundRectangle(wand, ...)` | `wand:round_rectangle(...)` |
-| `DrawScale(wand, ...)` | `wand:scale(...)` |
-| `DrawSetBorderColor(wand, ...)` | `wand:set_border_color(...)` |
-| `DrawSetClipPath(wand, ...)` | `wand:set_clip_path(...)` |
-| `DrawSetClipRule(wand, ...)` | `wand:set_clip_rule(...)` |
-| `DrawSetClipUnits(wand, ...)` | `wand:set_clip_units(...)` |
-| `DrawSetDensity(wand, ...)` | `wand:set_density(...)` |
-| `DrawSetFillAlpha(wand, ...)` | `wand:set_fill_alpha(...)` |
-| `DrawSetFillColor(wand, ...)` | `wand:set_fill_color(...)` |
-| `DrawSetFillOpacity(wand, ...)` | `wand:set_fill_opacity(...)` |
-| `DrawSetFillPatternURL(wand, ...)` | `wand:set_fill_pattern_url(...)` |
-| `DrawSetFillRule(wand, ...)` | `wand:set_fill_rule(...)` |
-| `DrawSetFont(wand, ...)` | `wand:set_font(...)` |
-| `DrawSetFontFamily(wand, ...)` | `wand:set_font_family(...)` |
-| `DrawSetFontResolution(wand, ...)` | `wand:set_font_resolution(...)` |
-| `DrawSetFontSize(wand, ...)` | `wand:set_font_size(...)` |
-| `DrawSetFontStretch(wand, ...)` | `wand:set_font_stretch(...)` |
-| `DrawSetFontStyle(wand, ...)` | `wand:set_font_style(...)` |
-| `DrawSetFontWeight(wand, ...)` | `wand:set_font_weight(...)` |
-| `DrawSetGravity(wand, ...)` | `wand:set_gravity(...)` |
-| `DrawSetOpacity(wand, ...)` | `wand:set_opacity(...)` |
-| `DrawSetStrokeAlpha(wand, ...)` | `wand:set_stroke_alpha(...)` |
-| `DrawSetStrokeAntialias(wand, ...)` | `wand:set_stroke_antialias(...)` |
-| `DrawSetStrokeColor(wand, ...)` | `wand:set_stroke_color(...)` |
-| `DrawSetStrokeDashOffset(wand, ...)` | `wand:set_stroke_dash_offset(...)` |
-| `DrawSetStrokeLineCap(wand, ...)` | `wand:set_stroke_line_cap(...)` |
-| `DrawSetStrokeLineJoin(wand, ...)` | `wand:set_stroke_line_join(...)` |
-| `DrawSetStrokeMiterLimit(wand, ...)` | `wand:set_stroke_miter_limit(...)` |
-| `DrawSetStrokeOpacity(wand, ...)` | `wand:set_stroke_opacity(...)` |
-| `DrawSetStrokePatternURL(wand, ...)` | `wand:set_stroke_pattern_url(...)` |
-| `DrawSetStrokeWidth(wand, ...)` | `wand:set_stroke_width(...)` |
-| `DrawSetTextAlignment(wand, ...)` | `wand:set_text_alignment(...)` |
-| `DrawSetTextAntialias(wand, ...)` | `wand:set_text_antialias(...)` |
-| `DrawSetTextDecoration(wand, ...)` | `wand:set_text_decoration(...)` |
-| `DrawSetTextDirection(wand, ...)` | `wand:set_text_direction(...)` |
-| `DrawSetTextEncoding(wand, ...)` | `wand:set_text_encoding(...)` |
-| `DrawSetTextInterlineSpacing(wand, ...)` | `wand:set_text_interline_spacing(...)` |
-| `DrawSetTextInterwordSpacing(wand, ...)` | `wand:set_text_interword_spacing(...)` |
-| `DrawSetTextKerning(wand, ...)` | `wand:set_text_kerning(...)` |
-| `DrawSetTextUnderColor(wand, ...)` | `wand:set_text_under_color(...)` |
-| `DrawSetVectorGraphics(wand, ...)` | `wand:set_vector_graphics(...)` |
-| `DrawSetViewbox(wand, ...)` | `wand:set_viewbox(...)` |
-| `DrawSkewX(wand, ...)` | `wand:skew_x(...)` |
-| `DrawSkewY(wand, ...)` | `wand:skew_y(...)` |
-| `DrawTranslate(wand, ...)` | `wand:translate(...)` |
-
 ## PixelWand
 
 | C API | Lua API |
@@ -553,6 +551,6 @@ luarocks install luamagick
 | `PixelSetYellow(wand, ...)` | `wand:set_yellow(...)` |
 | `PixelSetYellowQuantum(wand, ...)` | `wand:set_yellow_quantum(...)` |
 
-[NewMagickWand]: https://imagemagick.org/api/magick-wand.php#NewMagickWand
 [NewDrawingWand]: https://imagemagick.org/api/drawing-wand.php#NewDrawingWand
+[NewMagickWand]: https://imagemagick.org/api/magick-wand.php#NewMagickWand
 [NewPixelWand]: https://imagemagick.org/api/pixel-wand.php#NewPixelWand
