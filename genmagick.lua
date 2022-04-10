@@ -299,7 +299,7 @@ table.insert(
   {NULL, NULL},
 };
 
-int luaopen_wowrender_magick(lua_State *L) {
+int luaopen_luamagick(lua_State *L) {
   if (IsMagickWandInstantiated() == MagickFalse) {
     MagickWandGenesis();
   }]]
@@ -327,6 +327,6 @@ table.insert(
 ]]
 )
 
-local f = io.open('wowrender/magick.c', 'w')
+local f = io.open('luamagick.c', 'w')
 f:write(table.concat(t, '\n'))
 f:close()

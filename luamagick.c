@@ -5329,7 +5329,7 @@ static struct luaL_Reg module_index[] = {
   {NULL, NULL},
 };
 
-int luaopen_wowrender_magick(lua_State *L) {
+int luaopen_luamagick(lua_State *L) {
   if (IsMagickWandInstantiated() == MagickFalse) {
     MagickWandGenesis();
   }

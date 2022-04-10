@@ -1,5 +1,5 @@
-describe('wowrender/magick', function()
-  local t = require('wowrender.magick')
+describe('luamagick', function()
+  local t = require('luamagick')
   it('loads', function()
     assert.same('table', type(t))
   end)

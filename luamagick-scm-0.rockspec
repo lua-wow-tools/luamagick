@@ -1,11 +1,11 @@
 rockspec_format = "3.0"
-package = "wowrender"
+package = "luamagick"
 version = "scm-0"
 source = {
-   url = "git+https://github.com/lua-wow-tools/render.git",
+   url = "git+https://github.com/lua-wow-tools/luamagick.git",
 }
 description = {
-   homepage = "https://github.com/lua-wow-tools/render",
+   homepage = "https://github.com/lua-wow-tools/luamagick",
    license = "MIT",
 }
 build_dependencies = {
@@ -15,7 +15,7 @@ build_dependencies = {
 build = {
    type = "builtin",
    modules = {
-      ["wowrender.magick"] = {
+      ["luamagick"] = {
          defines = {
             "MAGICKCORE_HDRI_ENABLE=0",
             "MAGICKCORE_QUANTUM_DEPTH=16",
@@ -29,7 +29,7 @@ build = {
             "MagickCore-6.Q16",
             "MagickWand-6.Q16",
          },
-         sources = "wowrender/magick.c",
+         sources = "luamagick.c",
       },
    }
 }
