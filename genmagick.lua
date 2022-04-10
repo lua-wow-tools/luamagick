@@ -1,4 +1,5 @@
 local pf = require('pl.file')
+local sorted = require('pl.tablex').sort
 local sx = require('pl.stringx')
 
 local wandtypes = {
@@ -190,148 +191,123 @@ local function snake(s)
     :lower()
 end
 
-local t = {
-  '#include <lauxlib.h>',
-  '#include <lua.h>',
-  '#include <wand/MagickWand.h>',
-  '',
-}
-
-local w = {}
-for name in pairs(wands) do
-  table.insert(w, name)
-end
-table.sort(w)
-for _, name in ipairs(w) do
-  table.insert(t, ('static %sWand *check_%s_wand(lua_State *L, int k);'):format(name, name:lower()))
-end
-table.insert(t, '')
-for _, name in ipairs(w) do
-  table.insert(t, ('static int wrap_%s_wand(lua_State *L, %sWand *wand);'):format(name:lower(), name))
-end
-table.insert(t, '')
-for _, name in ipairs(w) do
+local function funcbody(name, fname)
+  local t = {}
   local wand = wands[name]
-  local fmts = {
-    LOWER = name:lower(),
-    PREFIX = wand.prefix,
-    WAND = name,
-  }
-  local function add(s)
-    for k, v in pairs(fmts) do
-      s = s:gsub(k, v)
-    end
-    table.insert(t, s)
+  local func = wand.funcs[fname]
+  local args = {}
+  local cf = allfuncs[func.name or (wand.prefix .. fname)]
+  for i, arg in ipairs(cf.args) do
+    table.insert(args, 'arg' .. i)
+    table.insert(t, argCode[arg]:format(i, i))
   end
-  add([[
-static const char LOWER_wand_meta_name[] = "wowrender.magick LOWER wand";
+  local fcall = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
+  for _, line in ipairs(retCode[cf.ret]) do
+    table.insert(t, (line:gsub('FCALL', fcall):gsub('LOWER', name:lower())))
+  end
+  return '  ' .. table.concat(t, '\n  ')
+end
 
-static int LOWER_error(lua_State *L, WANDWand *wand) {
+local plsub = require('pl.template').substitute
+pf.write(
+  'luamagick.c',
+  assert(plsub(
+    [[
+#include <lauxlib.h>
+#include <lua.h>
+#include <wand/MagickWand.h>
+
+> for name in sorted(wands) do
+static $(name)Wand *check_$(name:lower())_wand(lua_State *L, int k);
+> end
+
+> for name in sorted(wands) do
+static int wrap_$(name:lower())_wand(lua_State *L, $(name)Wand *wand);
+> end
+
+> for name, wand in sorted(wands) do
+static const char $(name:lower())_wand_meta_name[] = "wowrender.magick $(name:lower()) wand";
+
+static int $(name:lower())_error(lua_State *L, $(name)Wand *wand) {
   ExceptionType severity;
-  char *error = PREFIXGetException(wand, &severity);
+  char *error = $(wand.prefix)GetException(wand, &severity);
   lua_pushnil(L);
   lua_pushstring(L, error);
   MagickRelinquishMemory(error);
   return 2;
 }
 
-static WANDWand *check_LOWER_wand(lua_State *L, int k) {
-  void *ud = luaL_checkudata(L, k, LOWER_wand_meta_name);
-  luaL_argcheck(L, ud != NULL, k, "LOWER wand expected");
-  return *(WANDWand **)ud;
+static $(name)Wand *check_$(name:lower())_wand(lua_State *L, int k) {
+  void *ud = luaL_checkudata(L, k, $(name:lower())_wand_meta_name);
+  luaL_argcheck(L, ud != NULL, k, "$(name:lower()) wand expected");
+  return *($(name)Wand **)ud;
 }
 
-static int wrap_LOWER_wand(lua_State *L, WANDWand *wand) {
-  WANDWand **p = lua_newuserdata(L, sizeof(*p));
-  luaL_getmetatable(L, LOWER_wand_meta_name);
+static int wrap_$(name:lower())_wand(lua_State *L, $(name)Wand *wand) {
+  $(name)Wand **p = lua_newuserdata(L, sizeof(*p));
+  luaL_getmetatable(L, $(name:lower())_wand_meta_name);
   lua_setmetatable(L, -2);
   *p = wand;
   return 1;
 }
 
-static int new_LOWER_wand(lua_State *L) {
-  return wrap_LOWER_wand(L, NewWANDWand());
+static int new_$(name:lower())_wand(lua_State *L) {
+  return wrap_$(name:lower())_wand(L, New$(name)Wand());
 }
-]])
 
-  local fs = {}
-  for fname in pairs(wand.funcs) do
-    table.insert(fs, fname)
-  end
-  table.sort(fs)
-  for _, fname in ipairs(fs) do
-    local func = wand.funcs[fname]
-    fmts.SNAKE = snake(fname)
-    add('static int LOWER_SNAKE(lua_State *L) {')
-    if func.special then
-      table.insert(t, func.special)
-    else
-      local args = {}
-      local cf = allfuncs[func.name or (wand.prefix .. fname)]
-      for i, arg in ipairs(cf.args) do
-        table.insert(args, 'arg' .. i)
-        add(('  ' .. argCode[arg]):format(i, i))
-      end
-      fmts.FCALL = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
-      for _, line in ipairs(retCode[cf.ret]) do
-        add('  ' .. line)
-      end
-    end
-    add('}')
-    add('')
-  end
-  add('static struct luaL_Reg LOWER_wand_index[] = {')
-  for _, fname in ipairs(fs) do
-    fmts.SNAKE = snake(fname)
-    add('  {"SNAKE", LOWER_SNAKE},')
-  end
-  add('  {NULL, NULL},')
-  add('};')
-  add('')
-end
-table.insert(t, 'static struct luaL_Reg module_index[] = {')
-for _, name in ipairs(w) do
-  local s = name:lower()
-  table.insert(t, ('  {"new_%s_wand", new_%s_wand},'):format(s, s))
-end
-table.insert(
-  t,
-  [[
+> for fname, func in sorted(wand.funcs) do
+static int $(name:lower())_$(snake(fname))(lua_State *L) {
+> if func.special then
+$(func.special)
+> else
+$(funcbody(name, fname))
+> end
+}
+
+> end
+static struct luaL_Reg $(name:lower())_wand_index[] = {
+> for fname in sorted(wand.funcs) do
+  {"$(snake(fname))", $(name:lower())_$(snake(fname))},
+> end
+  {NULL, NULL},
+};
+
+> end
+static struct luaL_Reg module_index[] = {
+> for name in sorted(wands) do
+  {"new_$(name:lower())_wand", new_$(name:lower())_wand},
+> end
   {NULL, NULL},
 };
 
 int luaopen_luamagick(lua_State *L) {
   if (IsMagickWandInstantiated() == MagickFalse) {
     MagickWandGenesis();
-  }]]
-)
-
-for _, name in ipairs(w) do
-  table.insert(
-    t,
-    (([[
-  luaL_newmetatable(L, LOWER_wand_meta_name);
+  }
+> for name in sorted(wands) do
+  luaL_newmetatable(L, $(name:lower())_wand_meta_name);
   lua_pushstring(L, "__index");
   lua_pushvalue(L, -2);
   lua_settable(L, -3);
-  luaL_register(L, NULL, LOWER_wand_index);]]):gsub('LOWER', name:lower()))
-  )
-end
-
-table.insert(
-  t,
-  [[
+  luaL_register(L, NULL, $(name:lower())_wand_index);
+> end
   lua_newtable(L);
   luaL_register(L, NULL, module_index);
   return 1;
 }
-]]
+]],
+    {
+      _escape = '>',
+      funcbody = funcbody,
+      sorted = sorted,
+      snake = snake,
+      wands = wands,
+    }
+  ))
 )
-
-pf.write('luamagick.c', table.concat(t, '\n'))
 pf.write(
   'README.md',
-  require('pl.template').substitute(
+  assert(plsub(
     [[
 # luamagick
 
@@ -386,5 +362,5 @@ luarocks install luamagick
       tostring = tostring,
       wands = wands,
     }
-  )
+  ))
 )
