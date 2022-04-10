@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "luamagick"
-version = "6.Q16-0"
+version = "6.q16-0"
 source = {
    url = "git+https://github.com/lua-wow-tools/luamagick.git",
 }
