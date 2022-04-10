@@ -257,11 +257,7 @@ static int new_$(name:lower())_wand(lua_State *L) {
 
 > for fname, func in sorted(wand.funcs) do
 static int $(name:lower())_$(snake(fname))(lua_State *L) {
-> if func.special then
-$(func.special)
-> else
-$(funcbody(name, fname))
-> end
+$(func.special or funcbody(name, fname))
 }
 
 > end
