@@ -1,3 +1,4 @@
+local pf = require('pl.file')
 local sx = require('pl.stringx')
 
 local wandtypes = {
@@ -327,6 +328,63 @@ table.insert(
 ]]
 )
 
-local f = io.open('luamagick.c', 'w')
-f:write(table.concat(t, '\n'))
-f:close()
+pf.write('luamagick.c', table.concat(t, '\n'))
+pf.write(
+  'README.md',
+  require('pl.template').substitute(
+    [[
+# luamagick
+
+A simple mapping of the [ImageMagick](https://imagemagick.org) MagickWand C API to Lua.
+
+## Installation
+
+```sh
+luarocks install luamagick
+```
+
+## Wand Creation
+
+| C API | Lua API |
+| --- | --- |
+| [`NewMagickWand()`][NewMagickWand] | `require('luamagick').new_magick_wand()` |
+| [`NewDrawingWand()`][NewDrawingWand] | `require('luamagick').new_drawing_wand()` |
+| [`NewPixelWand()`][NewPixelWand] | `require('luamagick').new_pixel_wand()` |
+
+## MagickWand
+
+| C API | Lua API |
+| --- | --- |
+> for k, v in sort(wands.Magick.funcs) do
+| `$(v.name or 'Magick'..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+> end
+
+## DrawingWand
+
+| C API | Lua API |
+| --- | --- |
+> for k, v in sort(wands.Drawing.funcs) do
+| `$(v.name or 'Draw'..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+> end
+
+## PixelWand
+
+| C API | Lua API |
+| --- | --- |
+> for k, v in sort(wands.Pixel.funcs) do
+| `$(v.name or 'Pixel'..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+> end
+
+[NewMagickWand]: https://imagemagick.org/api/magick-wand.php#NewMagickWand
+[NewDrawingWand]: https://imagemagick.org/api/drawing-wand.php#NewDrawingWand
+[NewPixelWand]: https://imagemagick.org/api/pixel-wand.php#NewPixelWand
+]],
+    {
+      _escape = '>',
+      snake = snake,
+      sort = require('pl.tablex').sort,
+      tostring = tostring,
+      wands = wands,
+    }
+  )
+)
