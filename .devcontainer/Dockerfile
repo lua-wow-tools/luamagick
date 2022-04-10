@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/rust:0-bullseye AS stylua-builder
+FROM rust:slim-bullseye AS stylua-builder
 RUN cargo install --root=/opt/stylua --version=0.12.4 stylua
 
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-bullseye AS devcontainer
