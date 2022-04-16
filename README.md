@@ -215,6 +215,7 @@ luarocks install luamagick
 | `MagickDespeckleImage(wand, ...)` | `wand:despeckle_image(...)` |
 | `MagickDisplayImage(wand, ...)` | `wand:display_image(...)` |
 | `MagickDisplayImages(wand, ...)` | `wand:display_images(...)` |
+| `MagickDistortImage(wand, ...)` | `wand:distort_image(...)` |
 | `MagickDrawImage(wand, ...)` | `wand:draw_image(...)` |
 | `MagickEdgeImage(wand, ...)` | `wand:edge_image(...)` |
 | `MagickEmbossImage(wand, ...)` | `wand:emboss_image(...)` |

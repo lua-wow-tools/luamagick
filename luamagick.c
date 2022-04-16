@@ -1848,6 +1848,38 @@ static int magick_display_images(lua_State *L) {
   return 1;
 }
 
+static int magick_distort_image(lua_State *L) {
+  MagickWand *wand = check_magick_wand(L, 1);
+  lua_Number method = luaL_checknumber(L, 2);
+  int top = lua_gettop(L);
+  size_t nargs, i;
+  double *args;
+  MagickBooleanType bestfit, ret;
+  luaL_checktype(L, 3, LUA_TTABLE);
+  for (i = 1; i <= nargs; ++i) {
+    lua_pushnumber(L, i);
+    lua_gettable(L, 3);
+    luaL_checknumber(L, top + 1);
+    lua_pop(L, 1);
+  }
+  nargs = lua_objlen(L, 3);
+  args = malloc(nargs * sizeof(*args));
+  for (i = 1; i <= nargs; ++i) {
+    lua_pushnumber(L, i);
+    lua_gettable(L, 3);
+    args[i - 1] = luaL_checknumber(L, top + 1);
+    lua_pop(L, 1);
+  }
+  bestfit = lua_toboolean(L, 4);
+  ret = MagickDistortImage(wand, method, nargs, args, bestfit);
+  free(args);
+  if (ret != MagickTrue) {
+    return magick_error(L, wand);
+  }
+  lua_pushboolean(L, 1);
+  return 1;
+}
+
 static int magick_draw_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   DrawingWand *arg2 = check_drawing_wand(L, 2);
@@ -4645,6 +4677,7 @@ static struct luaL_Reg magick_wand_index[] = {
   {"despeckle_image", magick_despeckle_image},
   {"display_image", magick_display_image},
   {"display_images", magick_display_images},
+  {"distort_image", magick_distort_image},
   {"draw_image", magick_draw_image},
   {"edge_image", magick_edge_image},
   {"emboss_image", magick_emboss_image},

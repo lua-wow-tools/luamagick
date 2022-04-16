@@ -153,6 +153,38 @@ end
 -- TODO handle these generically
 wands.Drawing.funcs.Clear = { name = 'ClearDrawingWand' }
 wands.Drawing.funcs.Clone = { name = 'CloneDrawingWand' }
+wands.Magick.funcs.DistortImage = {
+  special = [[
+  MagickWand *wand = check_magick_wand(L, 1);
+  lua_Number method = luaL_checknumber(L, 2);
+  int top = lua_gettop(L);
+  size_t nargs, i;
+  double *args;
+  MagickBooleanType bestfit, ret;
+  luaL_checktype(L, 3, LUA_TTABLE);
+  for (i = 1; i <= nargs; ++i) {
+    lua_pushnumber(L, i);
+    lua_gettable(L, 3);
+    luaL_checknumber(L, top + 1);
+    lua_pop(L, 1);
+  }
+  nargs = lua_objlen(L, 3);
+  args = malloc(nargs * sizeof(*args));
+  for (i = 1; i <= nargs; ++i) {
+    lua_pushnumber(L, i);
+    lua_gettable(L, 3);
+    args[i - 1] = luaL_checknumber(L, top + 1);
+    lua_pop(L, 1);
+  }
+  bestfit = lua_toboolean(L, 4);
+  ret = MagickDistortImage(wand, method, nargs, args, bestfit);
+  free(args);
+  if (ret != MagickTrue) {
+    return magick_error(L, wand);
+  }
+  lua_pushboolean(L, 1);
+  return 1;]],
+}
 wands.Magick.funcs.GetOptions = {
   special = [[
   MagickWand *wand = check_magick_wand(L, 1);
