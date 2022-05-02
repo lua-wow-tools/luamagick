@@ -142,11 +142,11 @@ for k, v in pairs(wandtypes) do
   }
 end
 for k, v in pairs(allfuncs) do
-  if isValid(v) then
-    local wname = v.args[1]:sub(1, -7)
-    if sx.startswith(k, wandtypes[wname]) then
-      wands[wname].funcs[k:sub(#wandtypes[wname] + 1)] = {}
-    end
+  local wname = v.args[1]:sub(1, -7)
+  if sx.startswith(k, wandtypes[wname]) then
+    wands[wname].funcs[k:sub(#wandtypes[wname] + 1)] = {
+      unsupported = not isValid(v),
+    }
   end
 end
 
@@ -282,14 +282,18 @@ static int new_$(name:lower())_wand(lua_State *L) {
 > end
 > for name, wand in sorted(wands) do
 > for fname, func in sorted(wand.funcs) do
+> if not func.unsupported then
 static int $(name:lower())_$(snake(fname))(lua_State *L) {
 $(func.special or funcbody(name, fname))
 }
 
 > end
+> end
 static struct luaL_Reg $(name:lower())_wand_index[] = {
-> for fname in sorted(wand.funcs) do
+> for fname, func in sorted(wand.funcs) do
+> if not func.unsupported then
   {"$(snake(fname))", $(name:lower())_$(snake(fname))},
+> end
 > end
   {NULL, NULL},
 };
@@ -355,7 +359,7 @@ luarocks install luamagick
 | C API | Lua API |
 | --- | --- |
 > for k, v in sorted(wand.funcs) do
-| `$(v.name or wand.prefix..k)(wand, ...)` | `wand:$(snake(k))(...)` |
+| `$(v.name or wand.prefix..k)(wand, ...)` | $(v.unsupported and 'unsupported' or '`wand:' .. snake(k) .. '(...)`') |
 > end
 
 > end
