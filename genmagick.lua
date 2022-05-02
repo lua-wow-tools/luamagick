@@ -250,7 +250,7 @@ pf.write(
 #include <wand/MagickWand.h>
 
 > for name, wand in sorted(wands) do
-static const char $(name:lower())_wand_meta_name[] = "wowrender.magick $(name:lower()) wand";
+static const char $(name:lower())_wand_meta_name[] = "luamagick $(name:lower()) wand";
 
 static int $(name:lower())_error(lua_State *L, $(name)Wand *wand) {
   ExceptionType severity;

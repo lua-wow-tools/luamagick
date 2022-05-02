@@ -2,7 +2,7 @@
 #include <lua.h>
 #include <wand/MagickWand.h>
 
-static const char drawing_wand_meta_name[] = "wowrender.magick drawing wand";
+static const char drawing_wand_meta_name[] = "luamagick drawing wand";
 
 static int drawing_error(lua_State *L, DrawingWand *wand) {
   ExceptionType severity;
@@ -31,7 +31,7 @@ static int new_drawing_wand(lua_State *L) {
   return wrap_drawing_wand(L, NewDrawingWand());
 }
 
-static const char magick_wand_meta_name[] = "wowrender.magick magick wand";
+static const char magick_wand_meta_name[] = "luamagick magick wand";
 
 static int magick_error(lua_State *L, MagickWand *wand) {
   ExceptionType severity;
@@ -60,7 +60,7 @@ static int new_magick_wand(lua_State *L) {
   return wrap_magick_wand(L, NewMagickWand());
 }
 
-static const char pixel_wand_meta_name[] = "wowrender.magick pixel wand";
+static const char pixel_wand_meta_name[] = "luamagick pixel wand";
 
 static int pixel_error(lua_State *L, PixelWand *wand) {
   ExceptionType severity;
