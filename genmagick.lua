@@ -72,43 +72,41 @@ local argCode = {
 }
 
 local retCode = {
-  ['char *'] = {
-    'char *value = FCALL;',
-    'lua_pushstring(L, value);',
-    'MagickRelinquishMemory(value);',
-    'return 1;',
-  },
-  ['MagickBooleanType'] = {
-    'if (FCALL != MagickTrue) {',
-    '  return LOWER_error(L, arg1);',
-    '}',
-    'lua_pushboolean(L, 1);',
-    'return 1;',
-  },
-  ['void'] = {
-    'FCALL;',
-    'return 0;',
-  },
+  ['char *'] = [[
+    char *value = $fcall;
+    lua_pushstring(L, value);
+    MagickRelinquishMemory(value);
+    return 1;
+  ]],
+  ['MagickBooleanType'] = [[
+    if ($fcall != MagickTrue) {
+      return ${lower}_error(L, arg1);
+    }
+    lua_pushboolean(L, 1);
+    return 1;
+  ]],
+  ['void'] = [[
+    $fcall;
+    return 0;
+  ]],
 }
 
 for k in pairs(wandtypes) do
   local pty = k .. 'Wand *'
   argCode[pty] = pty .. 'arg$num = check_' .. k:lower() .. '_wand(L, $num);'
-  retCode[pty] = {
-    'return wrap_' .. k:lower() .. '_wand(L, FCALL);',
-  }
+  retCode[pty] = 'return wrap_' .. k:lower() .. '_wand(L, $fcall);'
 end
 
 for k in pairs(numtypes) do
   argCode[k] = k .. ' arg$num = luaL_checknumber(L, $num);'
-  retCode[k] = {
-    'lua_pushnumber(L, FCALL);',
-    'return 1;',
-  }
+  retCode[k] = 'lua_pushnumber(L, $fcall);\nreturn 1;'
 end
 
 for k, v in pairs(argCode) do
   argCode[k] = tmpl(v)
+end
+for k, v in pairs(retCode) do
+  retCode[k] = tmpl(v)
 end
 
 local skips = {
@@ -241,6 +239,11 @@ local function snake(s)
     :lower()
 end
 
+local function fixdent(s)
+  local t = require('pl.text')
+  return sx.rstrip(t.indent(t.dedent(s), 2))
+end
+
 local function funcbody(name, fname)
   local t = {}
   local wand = wands[name]
@@ -249,13 +252,16 @@ local function funcbody(name, fname)
   local cf = allfuncs[func.name or (wand.prefix .. fname)]
   for i, arg in ipairs(cf.args) do
     table.insert(args, 'arg' .. i)
-    table.insert(t, argCode[arg]:substitute({ num = i }))
+    table.insert(t, '  ' .. argCode[arg]:substitute({ num = i }))
   end
-  local fcall = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
-  for _, line in ipairs(retCode[cf.ret]) do
-    table.insert(t, (line:gsub('FCALL', fcall):gsub('LOWER', name:lower())))
-  end
-  return '  ' .. table.concat(t, '\n  ')
+  table.insert(
+    t,
+    fixdent(retCode[cf.ret]:substitute({
+      fcall = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', ')),
+      lower = name:lower(),
+    }))
+  )
+  return table.concat(t, '\n')
 end
 
 local plsub = require('pl.template').substitute
