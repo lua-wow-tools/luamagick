@@ -537,8 +537,8 @@ static int drawing_path_elliptic_arc_absolute(lua_State *L) {
   lua_Number arg2 = luaL_checknumber(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
-  lua_Number arg6 = luaL_checknumber(L, 6);
+  int arg5 = lua_toboolean(L, 5);
+  int arg6 = lua_toboolean(L, 6);
   lua_Number arg7 = luaL_checknumber(L, 7);
   lua_Number arg8 = luaL_checknumber(L, 8);
   DrawPathEllipticArcAbsolute(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -550,8 +550,8 @@ static int drawing_path_elliptic_arc_relative(lua_State *L) {
   lua_Number arg2 = luaL_checknumber(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
-  lua_Number arg6 = luaL_checknumber(L, 6);
+  int arg5 = lua_toboolean(L, 5);
+  int arg6 = lua_toboolean(L, 6);
   lua_Number arg7 = luaL_checknumber(L, 7);
   lua_Number arg8 = luaL_checknumber(L, 8);
   DrawPathEllipticArcRelative(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -911,7 +911,7 @@ static int drawing_set_stroke_alpha(lua_State *L) {
 
 static int drawing_set_stroke_antialias(lua_State *L) {
   DrawingWand *arg1 = check_drawing_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   DrawSetStrokeAntialias(arg1, arg2);
   return 0;
 }
@@ -984,7 +984,7 @@ static int drawing_set_text_alignment(lua_State *L) {
 
 static int drawing_set_text_antialias(lua_State *L) {
   DrawingWand *arg1 = check_drawing_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   DrawSetTextAntialias(arg1, arg2);
   return 0;
 }
@@ -1348,7 +1348,7 @@ static int magick_annotate_image(lua_State *L) {
 
 static int magick_append_images(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   return wrap_magick_wand(L, MagickAppendImages(arg1, arg2));
 }
 
@@ -1546,7 +1546,7 @@ static int magick_clip_image(lua_State *L) {
 static int magick_clip_image_path(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   const char *arg2 = luaL_checkstring(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickClipImagePath(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -1557,7 +1557,7 @@ static int magick_clip_image_path(lua_State *L) {
 static int magick_clip_path_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   const char *arg2 = luaL_checkstring(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickClipPathImage(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -1702,7 +1702,7 @@ static int magick_composite_layers(lua_State *L) {
 
 static int magick_contrast_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   if (MagickContrastImage(arg1, arg2) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2013,7 +2013,7 @@ static int magick_floodfill_paint_image(lua_State *L) {
   PixelWand *arg5 = check_pixel_wand(L, 5);
   lua_Number arg6 = luaL_checknumber(L, 6);
   lua_Number arg7 = luaL_checknumber(L, 7);
-  lua_Number arg8 = luaL_checknumber(L, 8);
+  int arg8 = lua_toboolean(L, 8);
   if (MagickFloodfillPaintImage(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2032,7 +2032,7 @@ static int magick_flop_image(lua_State *L) {
 
 static int magick_forward_fourier_transform_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   if (MagickForwardFourierTransformImage(arg1, arg2) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2613,7 +2613,7 @@ static int magick_implode_image(lua_State *L) {
 static int magick_inverse_fourier_transform_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   MagickWand *arg2 = check_magick_wand(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickInverseFourierTransformImage(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2660,7 +2660,7 @@ static int magick_level_image_colors(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   PixelWand *arg2 = check_pixel_wand(L, 2);
   PixelWand *arg3 = check_pixel_wand(L, 3);
-  lua_Number arg4 = luaL_checknumber(L, 4);
+  int arg4 = lua_toboolean(L, 4);
   if (MagickLevelImageColors(arg1, arg2, arg3, arg4) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2673,7 +2673,7 @@ static int magick_level_image_colors_channel(lua_State *L) {
   lua_Number arg2 = luaL_checknumber(L, 2);
   PixelWand *arg3 = check_pixel_wand(L, 3);
   PixelWand *arg4 = check_pixel_wand(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
+  int arg5 = lua_toboolean(L, 5);
   if (MagickLevelImageColorsChannel(arg1, arg2, arg3, arg4, arg5) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2753,7 +2753,7 @@ static int magick_magnify_image(lua_State *L) {
 static int magick_map_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   MagickWand *arg2 = check_magick_wand(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickMapImage(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2880,7 +2880,7 @@ static int magick_motion_blur_image_channel(lua_State *L) {
 
 static int magick_negate_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   if (MagickNegateImage(arg1, arg2) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2891,7 +2891,7 @@ static int magick_negate_image(lua_State *L) {
 static int magick_negate_image_channel(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   lua_Number arg2 = luaL_checknumber(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickNegateImageChannel(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2966,7 +2966,7 @@ static int magick_opaque_paint_image(lua_State *L) {
   PixelWand *arg2 = check_pixel_wand(L, 2);
   PixelWand *arg3 = check_pixel_wand(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
+  int arg5 = lua_toboolean(L, 5);
   if (MagickOpaquePaintImage(arg1, arg2, arg3, arg4, arg5) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -2980,7 +2980,7 @@ static int magick_opaque_paint_image_channel(lua_State *L) {
   PixelWand *arg3 = check_pixel_wand(L, 3);
   PixelWand *arg4 = check_pixel_wand(L, 4);
   lua_Number arg5 = luaL_checknumber(L, 5);
-  lua_Number arg6 = luaL_checknumber(L, 6);
+  int arg6 = lua_toboolean(L, 6);
   if (MagickOpaquePaintImageChannel(arg1, arg2, arg3, arg4, arg5, arg6) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -3099,7 +3099,7 @@ static int magick_polaroid_image(lua_State *L) {
 static int magick_posterize_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   lua_Number arg2 = luaL_checknumber(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickPosterizeImage(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -3127,8 +3127,8 @@ static int magick_quantize_image(lua_State *L) {
   lua_Number arg2 = luaL_checknumber(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
-  lua_Number arg6 = luaL_checknumber(L, 6);
+  int arg5 = lua_toboolean(L, 5);
+  int arg6 = lua_toboolean(L, 6);
   if (MagickQuantizeImage(arg1, arg2, arg3, arg4, arg5, arg6) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -3141,8 +3141,8 @@ static int magick_quantize_images(lua_State *L) {
   lua_Number arg2 = luaL_checknumber(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
-  lua_Number arg6 = luaL_checknumber(L, 6);
+  int arg5 = lua_toboolean(L, 5);
+  int arg6 = lua_toboolean(L, 6);
   if (MagickQuantizeImages(arg1, arg2, arg3, arg4, arg5, arg6) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -3177,7 +3177,7 @@ static int magick_raise_image(lua_State *L) {
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
   lua_Number arg5 = luaL_checknumber(L, 5);
-  lua_Number arg6 = luaL_checknumber(L, 6);
+  int arg6 = lua_toboolean(L, 6);
   if (MagickRaiseImage(arg1, arg2, arg3, arg4, arg5, arg6) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -3378,7 +3378,7 @@ static int magick_scale_image(lua_State *L) {
 static int magick_segment_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   lua_Number arg2 = luaL_checknumber(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
   lua_Number arg5 = luaL_checknumber(L, 5);
   if (MagickSegmentImage(arg1, arg2, arg3, arg4, arg5) != MagickTrue) {
@@ -3435,7 +3435,7 @@ static int magick_sepia_tone_image(lua_State *L) {
 
 static int magick_set_antialias(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   if (MagickSetAntialias(arg1, arg2) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -3868,7 +3868,7 @@ static int magick_set_image_iterations(lua_State *L) {
 
 static int magick_set_image_matte(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   if (MagickSetImageMatte(arg1, arg2) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -4190,7 +4190,7 @@ static int magick_set_type(lua_State *L) {
 
 static int magick_shade_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
   if (MagickShadeImage(arg1, arg2, arg3, arg4) != MagickTrue) {
@@ -4261,7 +4261,7 @@ static int magick_shear_image(lua_State *L) {
 
 static int magick_sigmoidal_contrast_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
   if (MagickSigmoidalContrastImage(arg1, arg2, arg3, arg4) != MagickTrue) {
@@ -4274,7 +4274,7 @@ static int magick_sigmoidal_contrast_image(lua_State *L) {
 static int magick_sigmoidal_contrast_image_channel(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   lua_Number arg2 = luaL_checknumber(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
   lua_Number arg5 = luaL_checknumber(L, 5);
   if (MagickSigmoidalContrastImageChannel(arg1, arg2, arg3, arg4, arg5) != MagickTrue) {
@@ -4298,7 +4298,7 @@ static int magick_sketch_image(lua_State *L) {
 
 static int magick_smush_images(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
-  lua_Number arg2 = luaL_checknumber(L, 2);
+  int arg2 = lua_toboolean(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   return wrap_magick_wand(L, MagickSmushImages(arg1, arg2, arg3));
 }
@@ -4487,7 +4487,7 @@ static int magick_transparent_paint_image(lua_State *L) {
   PixelWand *arg2 = check_pixel_wand(L, 2);
   lua_Number arg3 = luaL_checknumber(L, 3);
   lua_Number arg4 = luaL_checknumber(L, 4);
-  lua_Number arg5 = luaL_checknumber(L, 5);
+  int arg5 = lua_toboolean(L, 5);
   if (MagickTransparentPaintImage(arg1, arg2, arg3, arg4, arg5) != MagickTrue) {
     return magick_error(L, arg1);
   }
@@ -4606,7 +4606,7 @@ static int magick_write_image(lua_State *L) {
 static int magick_write_images(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   const char *arg2 = luaL_checkstring(L, 2);
-  lua_Number arg3 = luaL_checknumber(L, 3);
+  int arg3 = lua_toboolean(L, 3);
   if (MagickWriteImages(arg1, arg2, arg3) != MagickTrue) {
     return magick_error(L, arg1);
   }

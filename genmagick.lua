@@ -8,11 +8,13 @@ local wandtypes = {
   Pixel = 'Pixel',
 }
 
-local inttypes = {
+local basenumtypes = {
+  ['double'] = true,
+  ['long'] = true,
+  ['size_t'] = true,
   ['unsigned long'] = true,
   ['unsigned long long'] = true,
   ['unsigned short'] = true,
-  ['long'] = true,
 }
 
 local allfuncs, numtypes = (function()
@@ -35,6 +37,9 @@ local allfuncs, numtypes = (function()
     }
   end
   local t, ns = {}, {}
+  for k in pairs(basenumtypes) do
+    ns[k] = true
+  end
   local f = io.popen([[
     echo \#include \"wand/MagickWand.h\" |
     clang -Xclang -ast-dump=json -fsyntax-only $(pkg-config ImageMagick --cflags) -xc -
@@ -49,9 +54,9 @@ local allfuncs, numtypes = (function()
         assert(wandtypes[name], 'unexpected wand type ' .. name)
         t[v.name] = ty
       end
-    elseif v.kind == 'TypedefDecl' and v.type and v.type.qualType then
+    elseif v.kind == 'TypedefDecl' and v.name ~= 'MagickBooleanType' and v.type and v.type.qualType then
       local ty = v.type.qualType
-      if inttypes[ty] or ns[ty] or sx.startswith(ty, 'enum ') then
+      if basenumtypes[ty] or ns[ty] or sx.startswith(ty, 'enum ') then
         ns[v.name] = true
       end
     end
@@ -61,9 +66,8 @@ end)()
 
 local argCode = {
   ['char *'] = 'const char *arg%d = luaL_checkstring(L, %d);',
+  ['MagickBooleanType'] = 'int arg%d = lua_toboolean(L, %d);',
   ['unsigned char *'] = 'const char *arg%d = luaL_checkstring(L, %d);',
-  ['double'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
-  ['size_t'] = 'lua_Number arg%d = luaL_checknumber(L, %d);',
 }
 
 local retCode = {
@@ -73,19 +77,11 @@ local retCode = {
     'MagickRelinquishMemory(value);',
     'return 1;',
   },
-  ['double'] = {
-    'lua_pushnumber(L, FCALL);',
-    'return 1;',
-  },
   ['MagickBooleanType'] = {
     'if (FCALL != MagickTrue) {',
     '  return LOWER_error(L, arg1);',
     '}',
     'lua_pushboolean(L, 1);',
-    'return 1;',
-  },
-  ['size_t'] = {
-    'lua_pushnumber(L, FCALL);',
     'return 1;',
   },
   ['void'] = {
@@ -103,8 +99,8 @@ for k in pairs(wandtypes) do
 end
 
 for k in pairs(numtypes) do
-  argCode[k] = argCode[k] or 'lua_Number arg%d = luaL_checknumber(L, %d);'
-  retCode[k] = retCode[k] or {
+  argCode[k] = 'lua_Number arg%d = luaL_checknumber(L, %d);'
+  retCode[k] = {
     'lua_pushnumber(L, FCALL);',
     'return 1;',
   }
