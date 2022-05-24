@@ -338,8 +338,8 @@ int luaopen_luamagick(lua_State *L) {
     {
       _escape = '>',
       funcbody = funcbody,
-      sorted = sorted,
       snake = snake,
+      sorted = sorted,
       wands = wands,
     }
   ))
