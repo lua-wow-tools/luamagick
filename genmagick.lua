@@ -65,9 +65,15 @@ local allfuncs, numtypes = (function()
 end)()
 
 local argCode = {
-  ['char *'] = 'const char *arg%d = luaL_checkstring(L, %d);',
-  ['MagickBooleanType'] = 'int arg%d = lua_toboolean(L, %d);',
-  ['unsigned char *'] = 'const char *arg%d = luaL_checkstring(L, %d);',
+  ['char *'] = function(num)
+    return string.format('const char *arg%d = luaL_checkstring(L, %d);', num, num)
+  end,
+  ['MagickBooleanType'] = function(num)
+    return string.format('int arg%d = lua_toboolean(L, %d);', num, num)
+  end,
+  ['unsigned char *'] = function(num)
+    return string.format('const char *arg%d = luaL_checkstring(L, %d);', num, num)
+  end,
 }
 
 local retCode = {
@@ -92,14 +98,18 @@ local retCode = {
 
 for k in pairs(wandtypes) do
   local pty = k .. 'Wand *'
-  argCode[pty] = pty .. 'arg%d = check_' .. k:lower() .. '_wand(L, %d);'
+  argCode[pty] = function(num)
+    return string.format('%sarg%d = check_%s_wand(L, %d);', pty, num, k:lower(), num)
+  end
   retCode[pty] = {
     'return wrap_' .. k:lower() .. '_wand(L, FCALL);',
   }
 end
 
 for k in pairs(numtypes) do
-  argCode[k] = k .. ' arg%d = luaL_checknumber(L, %d);'
+  argCode[k] = function(num)
+    return string.format('%s arg%d = luaL_checknumber(L, %d);', k, num, num)
+  end
   retCode[k] = {
     'lua_pushnumber(L, FCALL);',
     'return 1;',
@@ -244,7 +254,7 @@ local function funcbody(name, fname)
   local cf = allfuncs[func.name or (wand.prefix .. fname)]
   for i, arg in ipairs(cf.args) do
     table.insert(args, 'arg' .. i)
-    table.insert(t, argCode[arg]:format(i, i))
+    table.insert(t, argCode[arg](i))
   end
   local fcall = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
   for _, line in ipairs(retCode[cf.ret]) do
