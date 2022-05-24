@@ -3150,6 +3150,23 @@ static int magick_quantize_images(lua_State *L) {
   return 1;
 }
 
+static int magick_query_font_metrics(lua_State *L) {
+  MagickWand *mwand = check_magick_wand(L, 1);
+  DrawingWand *dwand = check_drawing_wand(L, 2);
+  const char *text = luaL_checkstring(L, 3);
+  double *metrics = MagickQueryFontMetrics(mwand, dwand, text);
+  int i;
+  if (metrics == NULL) {
+    return 0;
+  }
+  lua_createtable(L, 13, 0);
+  for (i = 0; i < 13; ++i) {
+    lua_pushnumber(L, metrics[i]);
+    lua_rawseti(L, -2, i + 1);
+  }
+  return 1;
+}
+
 static int magick_radial_blur_image(lua_State *L) {
   MagickWand *arg1 = check_magick_wand(L, 1);
   double arg2 = luaL_checknumber(L, 2);
@@ -4821,6 +4838,7 @@ static struct luaL_Reg magick_wand_index[] = {
   {"previous_image", magick_previous_image},
   {"quantize_image", magick_quantize_image},
   {"quantize_images", magick_quantize_images},
+  {"query_font_metrics", magick_query_font_metrics},
   {"radial_blur_image", magick_radial_blur_image},
   {"radial_blur_image_channel", magick_radial_blur_image_channel},
   {"raise_image", magick_raise_image},
