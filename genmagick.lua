@@ -99,7 +99,7 @@ for k in pairs(wandtypes) do
 end
 
 for k in pairs(numtypes) do
-  argCode[k] = 'lua_Number arg%d = luaL_checknumber(L, %d);'
+  argCode[k] = k .. ' arg%d = luaL_checknumber(L, %d);'
   retCode[k] = {
     'lua_pushnumber(L, FCALL);',
     'return 1;',
