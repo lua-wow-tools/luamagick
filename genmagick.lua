@@ -1,6 +1,7 @@
 local pf = require('pl.file')
 local sorted = require('pl.tablex').sort
 local sx = require('pl.stringx')
+local tmpl = require('pl.text').Template
 
 local wandtypes = {
   Drawing = 'Draw',
@@ -65,15 +66,9 @@ local allfuncs, numtypes = (function()
 end)()
 
 local argCode = {
-  ['char *'] = function(num)
-    return string.format('const char *arg%d = luaL_checkstring(L, %d);', num, num)
-  end,
-  ['MagickBooleanType'] = function(num)
-    return string.format('int arg%d = lua_toboolean(L, %d);', num, num)
-  end,
-  ['unsigned char *'] = function(num)
-    return string.format('const char *arg%d = luaL_checkstring(L, %d);', num, num)
-  end,
+  ['char *'] = 'const char *arg$num = luaL_checkstring(L, $num);',
+  ['MagickBooleanType'] = 'int arg$num = lua_toboolean(L, $num);',
+  ['unsigned char *'] = 'const char *arg$num = luaL_checkstring(L, $num);',
 }
 
 local retCode = {
@@ -98,22 +93,22 @@ local retCode = {
 
 for k in pairs(wandtypes) do
   local pty = k .. 'Wand *'
-  argCode[pty] = function(num)
-    return string.format('%sarg%d = check_%s_wand(L, %d);', pty, num, k:lower(), num)
-  end
+  argCode[pty] = pty .. 'arg$num = check_' .. k:lower() .. '_wand(L, $num);'
   retCode[pty] = {
     'return wrap_' .. k:lower() .. '_wand(L, FCALL);',
   }
 end
 
 for k in pairs(numtypes) do
-  argCode[k] = function(num)
-    return string.format('%s arg%d = luaL_checknumber(L, %d);', k, num, num)
-  end
+  argCode[k] = k .. ' arg$num = luaL_checknumber(L, $num);'
   retCode[k] = {
     'lua_pushnumber(L, FCALL);',
     'return 1;',
   }
+end
+
+for k, v in pairs(argCode) do
+  argCode[k] = tmpl(v)
 end
 
 local skips = {
@@ -254,7 +249,7 @@ local function funcbody(name, fname)
   local cf = allfuncs[func.name or (wand.prefix .. fname)]
   for i, arg in ipairs(cf.args) do
     table.insert(args, 'arg' .. i)
-    table.insert(t, argCode[arg](i))
+    table.insert(t, argCode[arg]:substitute({ num = i }))
   end
   local fcall = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', '))
   for _, line in ipairs(retCode[cf.ret]) do
