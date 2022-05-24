@@ -418,7 +418,7 @@ luarocks install luamagick
 | `MagickQuantizeImage(wand, ...)` | `wand:quantize_image(...)` |
 | `MagickQuantizeImages(wand, ...)` | `wand:quantize_images(...)` |
 | `MagickQueryFontMetrics(wand, ...)` | `wand:query_font_metrics(...)` |
-| `MagickQueryMultilineFontMetrics(wand, ...)` | unsupported |
+| `MagickQueryMultilineFontMetrics(wand, ...)` | `wand:query_multiline_font_metrics(...)` |
 | `MagickRadialBlurImage(wand, ...)` | `wand:radial_blur_image(...)` |
 | `MagickRadialBlurImageChannel(wand, ...)` | `wand:radial_blur_image_channel(...)` |
 | `MagickRaiseImage(wand, ...)` | `wand:raise_image(...)` |

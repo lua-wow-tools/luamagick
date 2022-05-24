@@ -197,23 +197,8 @@ wands.Magick.funcs.GetOptions = {
   MagickRelinquishMemory(value);
   return num_options;]],
 }
-wands.Magick.funcs.QueryFontMetrics = {
-  special = [[
-  MagickWand *mwand = check_magick_wand(L, 1);
-  DrawingWand *dwand = check_drawing_wand(L, 2);
-  const char *text = luaL_checkstring(L, 3);
-  double *metrics = MagickQueryFontMetrics(mwand, dwand, text);
-  int i;
-  if (metrics == NULL) {
-    return 0;
-  }
-  lua_createtable(L, 13, 0);
-  for (i = 0; i < 13; ++i) {
-    lua_pushnumber(L, metrics[i]);
-    lua_rawseti(L, -2, i + 1);
-  }
-  return 1;]],
-}
+wands.Magick.funcs.QueryFontMetrics = { doubles = 13 }
+wands.Magick.funcs.QueryMultilineFontMetrics = { doubles = 13 }
 wands.Magick.funcs.ReadImageBlob = {
   special = [[
   MagickWand *wand = check_magick_wand(L, 1);
@@ -244,6 +229,20 @@ local function fixdent(s)
   return sx.rstrip(t.indent(t.dedent(s), 2))
 end
 
+local dtmpl = tmpl([[
+  double *ret = $fcall;
+  int i;
+  if (ret == NULL) {
+    return 0;
+  }
+  lua_createtable(L, $num, 0);
+  for (i = 0; i < $num; ++i) {
+    lua_pushnumber(L, ret[i]);
+    lua_rawseti(L, -2, i + 1);
+  }
+  return 1;
+]])
+
 local function funcbody(name, fname)
   local t = {}
   local wand = wands[name]
@@ -256,9 +255,10 @@ local function funcbody(name, fname)
   end
   table.insert(
     t,
-    fixdent(retCode[cf.ret]:substitute({
+    fixdent((func.doubles and dtmpl or retCode[cf.ret]):substitute({
       fcall = ('%s(%s)'):format(func.name or (wand.prefix .. fname), table.concat(args, ', ')),
       lower = name:lower(),
+      num = func.doubles,
     }))
   )
   return table.concat(t, '\n')
