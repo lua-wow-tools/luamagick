@@ -18,7 +18,7 @@ local basenumtypes = {
   ['unsigned short'] = true,
 }
 
-local allfuncs, numtypes = (function()
+local allfuncs, numtypes, enums = (function()
   local function splitArgs(args)
     local t = {}
     for _, arg in ipairs(sx.split(args, ',')) do
@@ -47,6 +47,13 @@ local allfuncs, numtypes = (function()
   ]])
   local clang = require('dkjson').use_lpeg().decode(f:read('*a'))
   f:close()
+  local enumids = {}
+  for _, v in ipairs(clang.inner) do
+    if v.kind == 'EnumDecl' and v.loc.includedFrom and v.loc.includedFrom.file:find('ImageMagick') then
+      enumids[v.id] = v
+    end
+  end
+  local es = {}
   for _, v in ipairs(clang.inner) do
     if v.kind == 'FunctionDecl' then
       local ty = parseQualType(v.type.qualType)
@@ -60,9 +67,26 @@ local allfuncs, numtypes = (function()
       if basenumtypes[ty] or ns[ty] or sx.startswith(ty, 'enum ') then
         ns[v.name] = true
       end
+      local eid = v.inner and v.inner[1] and v.inner[1].ownedTagDecl and v.inner[1].ownedTagDecl.id
+      local enum = eid and enumids[eid]
+      if enum then
+        local e = {}
+        local val = 0
+        for _, x in ipairs(enum.inner) do
+          if x.inner then
+            -- TODO stop skipping enum values that are expressions.
+            if x.inner[1] and x.inner[1].inner and x.inner[1].inner[1] and x.inner[1].inner[1].value then
+              val = tonumber(x.inner[1].inner[1].value)
+            end
+          end
+          e[x.name] = val
+          val = val + 1
+        end
+        es[v.name] = e
+      end
     end
   end
-  return t, ns
+  return t, ns, es
 end)()
 
 local argCode = {
@@ -340,14 +364,26 @@ int luaopen_luamagick(lua_State *L) {
   lua_pushvalue(L, -2);
   lua_settable(L, -3);
   luaL_register(L, NULL, $(name:lower())_wand_index);
+  lua_pop(L, 1);
 > end
   lua_newtable(L);
   luaL_register(L, NULL, module_index);
+> for k, v in sorted(enums) do
+  lua_pushstring(L, "$(k)");
+  lua_newtable(L);
+> for en, ev in sorted(v) do
+  lua_pushstring(L, "$(en)");
+  lua_pushinteger(L, $(ev));
+  lua_settable(L, -3);
+> end
+  lua_settable(L, -3);
+> end
   return 1;
 }
 ]],
     {
       _escape = '>',
+      enums = enums,
       funcbody = funcbody,
       snake = snake,
       sorted = sorted,
