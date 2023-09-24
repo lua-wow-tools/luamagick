@@ -8,5 +8,6 @@ RUN apt-get update \
         clang fonts-freefont-ttf libmagickwand-dev ruby \
     && pip install git+https://github.com/luarocks/hererocks pre-commit \
     && hererocks -l 5.1 -r 3.8.0 /usr/local \
-    && echo busted lpeg luacheck penlight | xargs -n1 luarocks install
+    && echo busted luacheck penlight | xargs -n1 luarocks install \
+    && luarocks install lpeg 1.0.2
 COPY --from=stylua-builder /opt/stylua /usr/local

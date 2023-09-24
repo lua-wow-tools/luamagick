@@ -9,7 +9,8 @@ description = {
    license = "MIT",
 }
 build_dependencies = {
-   "lpeg",
+   "dkjson",
+   "lpeg == 1.0.2",
    "penlight",
 }
 build = {
