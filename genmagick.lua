@@ -180,18 +180,19 @@ wands.Magick.funcs.DistortImage = {
   special = [[
   MagickWand *wand = check_magick_wand(L, 1);
   lua_Number method = luaL_checknumber(L, 2);
-  int top = lua_gettop(L);
-  size_t nargs, i;
-  double *args;
-  MagickBooleanType bestfit, ret;
   luaL_checktype(L, 3, LUA_TTABLE);
+  MagickBooleanType bestfit = lua_toboolean(L, 4);
+  int top = lua_gettop(L);
+  size_t nargs = lua_objlen(L, 3);
+  size_t i;
+  double *args;
+  MagickBooleanType ret;
   for (i = 1; i <= nargs; ++i) {
     lua_pushnumber(L, i);
     lua_gettable(L, 3);
     luaL_checknumber(L, top + 1);
     lua_pop(L, 1);
   }
-  nargs = lua_objlen(L, 3);
   args = malloc(nargs * sizeof(*args));
   for (i = 1; i <= nargs; ++i) {
     lua_pushnumber(L, i);
@@ -199,7 +200,6 @@ wands.Magick.funcs.DistortImage = {
     args[i - 1] = luaL_checknumber(L, top + 1);
     lua_pop(L, 1);
   }
-  bestfit = lua_toboolean(L, 4);
   ret = MagickDistortImage(wand, method, nargs, args, bestfit);
   free(args);
   if (ret != MagickTrue) {
